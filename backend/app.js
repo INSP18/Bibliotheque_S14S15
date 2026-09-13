@@ -1,9 +1,11 @@
+require('dotenv').config()
+
 const express = require('express')
 const app = express()
-const PORT = 3000 
+const PORT = process.env.PORT || 3000 
 
-app.get('/', (req, res)=>{
-    res.send('Welcome !')
+app.use('/', (req, res)=>{
+    res.send('all routes')
 })
 
 app.listen(PORT, ()=>{

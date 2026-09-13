@@ -20,6 +20,7 @@
     "url": "https://github.com/INSP18/Bibliotheque_S14S15/issues"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "nodemon": "^3.1.14",
     "pg": "^8.23.0"
