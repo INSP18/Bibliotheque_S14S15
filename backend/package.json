@@ -2,9 +2,11 @@
   "name": "bibliotheque_s14s15",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",
@@ -17,9 +19,9 @@
   "bugs": {
     "url": "https://github.com/INSP18/Bibliotheque_S14S15/issues"
   },
-  "homepage": "https://github.com/INSP18/Bibliotheque_S14S15#readme",
   "dependencies": {
     "express": "^5.2.1",
+    "nodemon": "^3.1.14",
     "pg": "^8.23.0"
   }
 }
