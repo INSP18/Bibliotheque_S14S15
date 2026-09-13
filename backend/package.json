@@ -1,0 +1,25 @@
+{
+  "name": "bibliotheque_s14s15",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/INSP18/Bibliotheque_S14S15.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/INSP18/Bibliotheque_S14S15/issues"
+  },
+  "homepage": "https://github.com/INSP18/Bibliotheque_S14S15#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.23.0"
+  }
+}
