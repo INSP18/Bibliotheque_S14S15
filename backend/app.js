@@ -12,6 +12,9 @@ app.get('/', (request, response)=>{
 const auteursRoutes = require('./routes/auteursRoutes')
 app.use('/api/auteurs', auteursRoutes)
 
+const adherentsRoutes = require('./routes/adherentsRoutes')
+app.use('/api/adherents', adherentsRoutes)
+
 app.listen(PORT, ()=>{
     console.log(`Server running and listening on http://localhost:${PORT}`)
 })
