@@ -2,7 +2,22 @@ import pool from '../config/databaseConfig.js'
 
 const getAllAuteurs = async function(){
     try{
-        const result = await pool.query(`SELECT * FROM auteurs`)
+        const result = await pool.query
+        (`select 
+            auteurs.id as identifiant,
+            auteurs.nom as auteur, 
+            auteurs.nationalite as nationalite,
+            livres.titre as livre, 
+            livres.statut as statut,
+            livres.annee_publication as annee
+            
+            from auteurs 
+
+            join 
+                ecrire on auteurs.id =  id_auteur
+            join 
+                livres on id_livre = livres.id
+        `)
         return result.rows
     }
     catch(error){
