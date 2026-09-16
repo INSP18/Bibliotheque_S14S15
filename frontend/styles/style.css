@@ -1,0 +1,83 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #F8FAFC;
+    font-family: 'Inter', -apple-system, 'Segoe	UI', sans-serif;
+    font-size: 14px;
+    color:  #F8FAFC;
+}
+
+header{
+    width: 100%;
+    height: 100px;
+    background-color:   #3730A3;
+    padding: 20px;
+
+    nav{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        span{
+            display: flex;
+            justify-content: left;
+            align-items: center;
+        }
+
+        ul{
+            display: flex;
+            align-items: left;
+            justify-content: center;
+            gap: 50px;
+
+            li{
+                list-style: none;
+                a{
+                    text-decoration: none;
+                    color: #fefeff;
+                }
+            }
+        }
+    }
+    
+}
+
+main{
+    .pageAuteurs{
+        width: 100%;
+        height: 80dvh;
+        background-color:  #caced2;
+        color:  #1E293B;
+        padding: 20px;
+
+        .tableau{
+            margin-top: 20px;
+
+            table{
+                border-collapse: collapse;
+                width:100%;
+                border: 1px solid #dedee1;
+                /* table-layout: auto; */
+            }
+
+            thead tr{
+                background-color: #caced2;
+                color: #c5c8cd;
+                text-align: left;
+                background-color: #3730A3;
+            }
+
+            tbody tr:nth-child(even){
+                background-color: white;
+            }
+
+            tbody tr td{
+                padding: 10px;
+                border: 1px solid white;
+            }
+        }
+    }
+}

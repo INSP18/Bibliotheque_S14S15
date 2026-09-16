@@ -1,4 +1,4 @@
-const pool = require('../config/databaseConfig')
+import pool from '../config/databaseConfig.js'
 
 const getAllAuteurs = async function(){
     try{
@@ -56,7 +56,7 @@ const supprimerAuteur = async function(id){
     }
 }
 
-module.exports = {
+export {
     getAllAuteurs,
     getAuteur,
     createAuteur,

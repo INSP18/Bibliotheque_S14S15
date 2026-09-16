@@ -3,21 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="../styles/style.css">
+    <title>Martonne</title>
 </head>
 <body>
-    <header></header>
-    <main>
-        
-    </main>
-    <aside>
+    <header>
         <nav>
+            <span class="logo">
+                <img src="../assets/favicon.ico" alt="logo" width="50" height="50">
+            </span>
             <ul>
-                <li><a href="/">Accueil</a></li>
-                <li><a href="/">Auteurs</a></li>
-                <li><a href="/">Adhérent</a></li>
+                <li><a href="#auteurs">Auteurs</a></li>
+                <li><a href="#adherents">Adhérent</a></li>
             </ul>
         </nav>
+    </header>
+    <main>
+        <section class="pageAuteurs" id="auteurs">
+            <h2>Auteurs</h2>
+            <p>Accéder à la liste des auteurs</p>
+            <article class="tableau">
+                <h2>Listes des auteurs</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Nationationalité</th>
+                        </tr>
+                        <tbody id="tableAuteurs">
+
+                        </tbody>
+                    </thead>
+                </table>
+            </article>
+        </section>
+        <section class="pageAdherents" id="adherents">
+            <h2>Adhérents</h2>
+            <p>Accéder à la liste des adhérents</p>
+        </section>
+    </main>
+    <aside>
+        
     </aside>
+
+    <script src="../js/app.js"></script>
 </body>
 </html>

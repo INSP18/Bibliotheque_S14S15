@@ -1,8 +1,12 @@
-const Adherents = require('../models/adherentsModel')
+import { getAllAdherents, 
+    getAdherent as _getAdherent, 
+    createAdherent as _createAdherent, 
+    modifierAdherent as _modifierAdherent, 
+    supprimerAdherent as _supprimerAdherent } from '../models/adherentsModel.js'
 
 const getAdherent = async function(request, response) {
     try{
-        const adherents = await Adherents.getAllAdherents()
+        const adherents = await getAllAdherents()
         response.json(adherents)
     }
     catch(error)
@@ -14,7 +18,7 @@ const getAdherent = async function(request, response) {
 const getAdherentsById = async function(request, response){
     try{
         const id = await request.params.id
-        const adherent = await Adherents.getAdherent()
+        const adherent = await _getAdherent()
 
         if(!adherent){
             return response.json(`L'adhérent avec l'id ${id} recherché n'existe pas`)
@@ -29,7 +33,7 @@ const getAdherentsById = async function(request, response){
 const createAdherent = async function(request, response){
     try{
         const {nom, contact} = request.body
-        const newAdherent = await Adherents.createAdherent(nom, contact)
+        const newAdherent = await _createAdherent(nom, contact)
         response.json(newAdherent)
     }
     catch(error){
@@ -41,7 +45,7 @@ const modifierAdherent = async function(request, response){
     try{
         const id = await request.params.id
         const {nom, contact} = request.body
-        const modifiyingAdherent = await Adherents.modifierAdherent(id, nom, contact)
+        const modifiyingAdherent = await _modifierAdherent(id, nom, contact)
 
         if(!modifiyingAdherent){
             return response.json(`L'adhérent avec l'id ${id} à modifier, n'existe pas`)
@@ -56,7 +60,7 @@ const modifierAdherent = async function(request, response){
 const supprimerAdherent = async function(request, response){
     try{
         const id = await request.params.id
-        const deletingAdherent = await Adherents.supprimerAdherent(id)
+        const deletingAdherent = await _supprimerAdherent(id)
 
         if(!deletingAdherent){
             return response.json({
@@ -73,7 +77,7 @@ const supprimerAdherent = async function(request, response){
     }
 }
 
-module.exports = {
+export {
     getAdherent,
     getAdherentsById,
     createAdherent,

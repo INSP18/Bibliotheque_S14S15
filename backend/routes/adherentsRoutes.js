@@ -1,9 +1,12 @@
-const express = require('express')
-const { getAdherent, getAdherentsById, 
+import { Router } from 'express'
+import { 
+    getAdherent, 
+    getAdherentsById, 
     createAdherent, 
-    modifierAdherent,
-    supprimerAdherent} = require('../controllers/adherentsController')
-const router = express.Router()
+    modifierAdherent, 
+    supprimerAdherent } from '../controllers/adherentsController.js'
+
+const router = Router()
 
 router.get('/', getAdherent)
 router.get('/:id', getAdherentsById)
@@ -11,4 +14,4 @@ router.post('/', createAdherent)
 router.put('/:id', modifierAdherent)
 router.delete('/:id', supprimerAdherent)
 
-module.exports = router
+export default router

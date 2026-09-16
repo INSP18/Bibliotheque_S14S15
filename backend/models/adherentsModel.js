@@ -1,4 +1,4 @@
-const pool = require('../config/databaseConfig')
+import pool from '../config/databaseConfig.js'
 
 const getAllAdherents = async function(){
     try{
@@ -12,11 +12,11 @@ const getAllAdherents = async function(){
 
 const getAdherent = async function(id){
     try{
-        const auteur = await pool.query('SELECT * FROM adherents WHERE id = $1', [id])
-        return auteur.rows[0]
+        const adherent = await pool.query('SELECT * FROM adherents WHERE id = $1', [id])
+        return adherent.rows[0]
     }
-    catch{
-
+    catch(error){
+        throw error
     }
 }
 
@@ -56,7 +56,7 @@ const supprimerAdherent = async function(id){
     }
 }
 
-module.exports = {
+export {
     getAllAdherents,
     getAdherent,
     createAdherent,
