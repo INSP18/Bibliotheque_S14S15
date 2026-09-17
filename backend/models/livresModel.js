@@ -1,6 +1,6 @@
 import pool from '../config/databaseConfig.js'
 
-const getAllLivres = async function(){
+const listeLivres = async function(){
     try{
         const result = await pool.query(`SELECT * FROM livres`)
         return result.rows
@@ -10,17 +10,17 @@ const getAllLivres = async function(){
     }
 }
 
-const getLivres = async function(id){
+const listeLivre = async function(id){
     try{
-        const livres = await pool.query('SELECT * FROM livres WHERE id = $1', [id])
-        return livres.rows[0]
+        const result = await pool.query('SELECT * FROM livres WHERE id = $1', [id])
+        return result.rows[0]
     }
     catch(error){
         throw error
     }
 }
 
-const createLivres = async function(titre, annee_publication){
+const creerLivres = async function(titre, annee_publication){
     try{
         const query = 'INSERT INTO livres(titre, annee_publication) VALUES($1, $2) RETURNING*'
         const values = [titre, annee_publication]
@@ -57,9 +57,9 @@ const supprimerLivre = async function(id){
 }
 
 export {
-    getAllLivres,
-    getLivres,
-    createLivres,
+    listeLivres,
+    listeLivre,
+    creerLivres,
     modifierLivre,
     supprimerLivre
 }

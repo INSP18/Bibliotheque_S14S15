@@ -1,66 +1,85 @@
-import { getAllAdherents, 
-    getAdherent as _getAdherent, 
-    createAdherent as _createAdherent, 
-    modifierAdherent as _modifierAdherent, 
-    supprimerAdherent as _supprimerAdherent } from '../models/adherentsModel.js'
+import { 
+    creerAdherent, 
+    listeAdherent, 
+    listeAdherents, 
+    modifierAdherent, 
+    supprimerAdherent 
+} from '../models/adherentsModel.js'
 
-const getAdherent = async function(request, response) {
+const getAllAdherents = async function(request, response) {
     try{
-        const adherents = await getAllAdherents()
-        response.json(adherents)
+        const adherents = await listeAdherents()
+        response.json({
+            message: "liste des adhérents récupérée",
+            data:adherents
+        })
     }
-    catch(error)
-    {
-        response.json('Erreur lors de la récupération des auteurs')
+    catch(error){
+        response.json({
+            message:'Erreur lors de la récupération des auteurs'
+        })
     }
 }
 
 const getAdherentsById = async function(request, response){
     try{
         const id = await request.params.id
-        const adherent = await _getAdherent()
+        const adherent = await listeAdherent(id)
 
         if(!adherent){
-            return response.json(`L'adhérent avec l'id ${id} recherché n'existe pas`)
+            return response.json({
+                message:`L'adhérent avec l'id ${id} recherché n'existe pas`,
+                data: adherent
+            })
         }
-        response.json(adherent)
     }
     catch(error){
-        response.json('Erreur lors de la récupérartion de données auteurs')
+        response.json({
+            mesage:'Erreur lors de la récupérartion de données auteurs'
+        })
     }
 }
 
 const createAdherent = async function(request, response){
     try{
         const {nom, contact} = request.body
-        const newAdherent = await _createAdherent(nom, contact)
-        response.json(newAdherent)
+        const newAdherent = await creerAdherent(nom, contact)
+        response.json({
+            message: "adhérent créer avec succès",
+            data:newAdherent
+        })
     }
     catch(error){
-        return response.json('Erreur de récupération de données')
+        return response.json({
+            message:'Erreur de récupération de données'
+        })
     }
 }
 
-const modifierAdherent = async function(request, response){
+const modifyAdherent = async function(request, response){
     try{
         const id = await request.params.id
         const {nom, contact} = request.body
-        const modifiyingAdherent = await _modifierAdherent(id, nom, contact)
+        const modifiyingAdherent = await modifierAdherent(id, nom, contact)
 
         if(!modifiyingAdherent){
-            return response.json(`L'adhérent avec l'id ${id} à modifier, n'existe pas`)
+            return response.json({
+                message:`L'adhérent avec l'id ${id} à modifier, n'existe pas`,
+                data: modifiyingAdherent
+            })
         }
-        response.json(modifiyingAdherent)
     }
     catch(error){
-        response.json("Erreur survenue lors de la modification de l'adhérent")
+        response.json({
+            message:"Erreur survenue lors de la modification de l'adhérent"
+        })
     }
 }
 
-const supprimerAdherent = async function(request, response){
+const deleteAdherent = async function(request, response){
     try{
         const id = await request.params.id
-        const deletingAdherent = await _supprimerAdherent(id)
+        const deletingAdherent = await supprimerAdherent(id)
 
         if(!deletingAdherent){
             return response.json({
@@ -78,9 +97,9 @@ const supprimerAdherent = async function(request, response){
 }
 
 export {
-    getAdherent,
+    getAllAdherents,
     getAdherentsById,
     createAdherent,
-    modifierAdherent,
-    supprimerAdherent
+    modifyAdherent,
+    deleteAdherent
 }

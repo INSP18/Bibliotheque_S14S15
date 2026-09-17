@@ -1,17 +1,18 @@
 import { Router } from 'express'
 import { 
-    getAuteurs, 
     createAuteur, 
+    deleteAuteur, 
+    getAllAuteurs, 
     getAuteursById, 
-    modifierAuteur, 
-    supprimerAuteur } from '../controllers/auteursController.js'
+    modifyAuteur 
+} from '../controllers/auteursController.js'
 
-    const router = Router()
+const router = Router()
 
-router.get('/', getAuteurs)
+router.get('/', getAllAuteurs)
 router.get('/:id', getAuteursById)
 router.post('/', createAuteur)
-router.put('/:id', modifierAuteur)
-router.delete('/:id', supprimerAuteur)
+router.put('/:id', modifyAuteur)
+router.delete('/:id', deleteAuteur)
 
 export default router

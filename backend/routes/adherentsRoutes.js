@@ -1,17 +1,18 @@
 import { Router } from 'express'
 import { 
-    getAdherent, 
-    getAdherentsById, 
     createAdherent, 
-    modifierAdherent, 
-    supprimerAdherent } from '../controllers/adherentsController.js'
+    deleteAdherent, 
+    getAdherentsById, 
+    getAllAdherents, 
+    modifyAdherent 
+} from '../controllers/adherentsController.js'
 
 const router = Router()
 
-router.get('/', getAdherent)
+router.get('/', getAllAdherents)
 router.get('/:id', getAdherentsById)
 router.post('/', createAdherent)
-router.put('/:id', modifierAdherent)
-router.delete('/:id', supprimerAdherent)
+router.put('/:id', modifyAdherent)
+router.delete('/:id', deleteAdherent)
 
 export default router

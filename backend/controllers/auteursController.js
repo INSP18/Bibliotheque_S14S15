@@ -1,67 +1,82 @@
-import { 
-    getAllAuteurs, 
-    getAuteur, 
-    createAuteur as _createAuteur, 
-    modifierAuteur as _modifierAuteur, 
-    supprimerAuteur as _supprimerAuteur } from '../models/auteursModel.js'
+import { creerteAuteur, listeAuteur, listeAuteurs, modifierAuteur, supprimerAuteur } from '../models/auteursModel.js'
 
-const getAuteurs = async function(request, response) {
+const getAllAuteurs = async function(request, response) {
     try{
-        const auteurs = await getAllAuteurs()
-        response.json(auteurs)
+        const auteurs = await listeAuteurs()
+        response.json({
+            message: "liste des auteurs récupérée",
+            data:auteurs
+        })
     }
     catch(error)
     {
-        response.json('Erreur lors de la récupération des auteurs')
+        response.json({
+            message:'Erreur lors de la récupération des auteurs'
+        })
     }
 }
 
 const getAuteursById = async function(request, response){
     try{
         const id = await request.params.id
-        const auteur = await getAuteur(id)
+        const auteur = await listeAuteur(id)
 
         if(!auteur){
             return response.json(`L'auteur avec l'id ${id} recherché n'existe pas`)
         }
-        response.json(auteur)
+        response.json({
+            message: "liste de l'auteur récupérée",
+            data:auteur
+        })
     }
     catch(error){
-        response.json('Erreur lors de la récupérartion de données auteurs')
+        response.json({
+            mesage:'Erreur lors de la récupérartion de données auteurs'
+        })
     }
 }
 
 const createAuteur = async function(request, response){
     try{
         const {nom, nationalite} = request.body
-        const newAuteur = await _createAuteur(nom, nationalite)
+        const newAuteur = await creerteAuteur(nom, nationalite)
         response.json(newAuteur)
     }
     catch(error){
-        return response.json('Erreur de récupération de données')
+        response.json({
+            message:'Erreur de récupération de données'
+        })
     }
 }
 
-const modifierAuteur = async function(request, response){
+const modifyAuteur = async function(request, response){
     try{
         const id = await request.params.id
         const {nom, nationalite} = request.body
-        const modifiyingAuteur = await _modifierAuteur(id, nom, nationalite)
+        const modifiyingAuteur = await modifierAuteur(id, nom, nationalite)
+
+        response.json({
+            message: "Auteur modifié avec succès !",
+            data: modifiyingAuteur
+        })
 
         if(!modifiyingAuteur){
-            return response.json(`L'auteur avec l'id ${id} à modifier, n'existe pas`)
+            return response.json({
+                message:`L'auteur avec l'id ${id} à modifier, n'existe pas`,
+            })
         }
-        response.json(modifiyingAuteur)
     }
     catch(error){
-        response.json("Erreur survenue lors de la modification de l'auteur")
+        response.json({
+            message:"Erreur survenue lors de la modification de l'auteur"
+        })
     }
 }
 
-const supprimerAuteur = async function(request, response){
+const deleteAuteur = async function(request, response){
     try{
         const id = await request.params.id
-        const deletingAuteur = await _supprimerAuteur(id)
+        const deletingAuteur = await supprimerAuteur(id)
 
         if(!deletingAuteur){
             return response.json({
@@ -74,14 +89,16 @@ const supprimerAuteur = async function(request, response){
         })
     }
     catch(error){
-
+        response.json({
+            message: "Erreur de suppression de données"
+        })
     }
 }
 
 export {
-    getAuteurs,
+    getAllAuteurs,
     getAuteursById,
     createAuteur,
-    modifierAuteur,
-    supprimerAuteur
+    modifyAuteur,
+    deleteAuteur
 }

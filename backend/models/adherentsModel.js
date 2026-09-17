@@ -1,6 +1,6 @@
 import pool from '../config/databaseConfig.js'
 
-const getAllAdherents = async function(){
+const listeAdherents = async function(){
     try{
         const result = await pool.query(`SELECT * FROM adherents`)
         return result.rows
@@ -10,7 +10,7 @@ const getAllAdherents = async function(){
     }
 }
 
-const getAdherent = async function(id){
+const listeAdherent = async function(id){
     try{
         const adherent = await pool.query('SELECT * FROM adherents WHERE id = $1', [id])
         return adherent.rows[0]
@@ -20,7 +20,7 @@ const getAdherent = async function(id){
     }
 }
 
-const createAdherent = async function(nom, contact){
+const creerAdherent = async function(nom, contact){
     try{
         const query = 'INSERT INTO adherents(nom, contact) VALUES($1, $2) RETURNING*'
         const values = [nom,contact]
@@ -57,9 +57,9 @@ const supprimerAdherent = async function(id){
 }
 
 export {
-    getAllAdherents,
-    getAdherent,
-    createAdherent,
+    listeAdherents,
+    listeAdherent,
+    creerAdherent,
     modifierAdherent,
     supprimerAdherent
 }

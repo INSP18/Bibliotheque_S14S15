@@ -1,15 +1,15 @@
 import { Router } from 'express'
 import { 
-    createLivre,
+    createLivre, 
     deleteLivre, 
-    getAllLivre, 
+    getAllLivres, 
     getLivresById, 
     modifyLivre 
 } from '../controllers/livresControllers.js'
 
 const router = Router()
 
-router.get('/', getAllLivre)
+router.get('/', getAllLivres)
 router.get('/:id', getLivresById)
 router.post('/', createLivre)
 router.put('/:id', modifyLivre)

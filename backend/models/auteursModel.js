@@ -1,6 +1,6 @@
 import pool from '../config/databaseConfig.js'
 
-const getAllAuteurs = async function(){
+const listeAuteurs = async function(){
     try{
         const result = await pool.query
         (`select 
@@ -25,17 +25,17 @@ const getAllAuteurs = async function(){
     }
 }
 
-const getAuteur = async function(id){
+const listeAuteur = async function(id){
     try{
         const auteur = await pool.query('SELECT * FROM auteurs WHERE id = $1', [id])
         return auteur.rows[0]
     }
-    catch{
-
+    catch(error){
+        throw error
     }
 }
 
-const createAuteur = async function(nom, nationalite){
+const creerteAuteur = async function(nom, nationalite){
     try{
         const query = 'INSERT INTO auteurs(nom, nationalite) VALUES($1, $2) RETURNING*'
         const values = [nom,nationalite]
@@ -72,9 +72,9 @@ const supprimerAuteur = async function(id){
 }
 
 export {
-    getAllAuteurs,
-    getAuteur,
-    createAuteur,
+    listeAuteurs,
+    listeAuteur,
+    creerteAuteur,
     modifierAuteur,
     supprimerAuteur
 }
