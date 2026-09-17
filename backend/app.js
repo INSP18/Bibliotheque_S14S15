@@ -8,6 +8,7 @@ import auteursRoutes from './routes/auteursRoutes.js'
 import adherentsRoutes from './routes/adherentsRoutes.js'
 import livresRoutes from './routes/livresRoutes.js'
 import empruntsRoutes from './routes/empruntsRoutes.js'
+import statsRoutes from './routes/statsRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000 
@@ -23,6 +24,7 @@ app.use('/api/auteurs', auteursRoutes)
 app.use('/api/adherents', adherentsRoutes)
 app.use('/api/livres', livresRoutes)
 app.use('/api/emprunts', empruntsRoutes)
+app.use('/api/stats', statsRoutes)
 
 app.listen(PORT, ()=>{
     console.log(`Server running and listening on http://localhost:${PORT}`)
