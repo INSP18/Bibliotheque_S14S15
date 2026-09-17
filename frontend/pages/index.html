@@ -3,50 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque - Dashboard</title>
     <link rel="stylesheet" href="../styles/style.css">
-    <title>Martonne</title>
 </head>
 <body>
-    <header>
-        <nav>
-            <span class="logo">
-                <img src="../assets/favicon.ico" alt="logo" width="50" height="50">
-            </span>
-            <ul>
-                <li><a href="#auteurs">Auteurs</a></li>
-                <li><a href="#adherents">Adhérent</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section class="pageAuteurs" id="auteurs">
-            <h2>Auteurs</h2>
-            <p>Accéder à la liste des auteurs</p>
-            <article class="tableau">
-                <h2>Listes des auteurs</h2>
+
+<header>
+    <nav aria-label="Navigation principale">
+        <div class="logo-container">
+            <div class="logo-box">
+                <img src="../assets/favicon.ico" alt="logo" width="54" height="54">
+            </div>
+            <span>Bibliothèque</span>
+        </div>
+
+        <ul class="nav-links">
+            <li><a class="active" href="index.html">Dashboard</a></li>
+            <li><a href="auteurs.html">Auteurs</a></li>
+            <li><a href="livres.html">Livres</a></li>
+            <li><a href="adherents.html">Adhérents</a></li>
+            <li><a href="emprunts.html">Emprunts</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section class="page-header">
+        <h1>Dashboard</h1>
+        <p>Vue générale de la bibliothèque</p>
+    </section>
+
+    <section class="stats-grid" aria-label="Statistiques de la bibliothèque">
+        <article class="stat-card">
+            <h2>Total des livres</h2>
+            <p class="stat-value" id="total-livres">0</p>
+        </article>
+
+        <article class="stat-card">
+            <h2>Total des adhérents</h2>
+            <p class="stat-value" id="total-adherents">0</p>
+        </article>
+
+        <article class="stat-card">
+            <h2>Emprunts en cours</h2>
+            <p class="stat-value" id="emprunts-en-cours">0</p>
+        </article>
+
+        <article class="stat-card">
+            <h2>Emprunts en retard</h2>
+            <p class="stat-value" id="emprunts-en-retard">0</p>
+        </article>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="panel">
+            <h2>Emprunts en cours</h2>
+
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Nom</th>
-                            <th>Nationationalité</th>
+                            <th>Livre</th>
+                            <th>Adhérent</th>
+                            <th>Date d'emprunt</th>
+                            <th>Retour prévu</th>
                         </tr>
-                        <tbody id="tableAuteurs">
-
-                        </tbody>
                     </thead>
+                    <tbody id="dashboard-emprunts-body">
+                        <!-- Les données seront ajoutées avec fetch() -->
+                    </tbody>
                 </table>
-            </article>
-        </section>
-        <section class="pageAdherents" id="adherents">
-            <h2>Adhérents</h2>
-            <p>Accéder à la liste des adhérents</p>
-        </section>
-    </main>
-    <aside>
-        
-    </aside>
+            </div>
+        </article>
 
-    <script src="../js/app.js"></script>
+        <article class="panel">
+            <h2>Emprunts en retard</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Livre</th>
+                            <th>Adhérent</th>
+                            <th>Contact</th>
+                            <th>Retour prévu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-retards-body">
+                        <!-- Les données seront ajoutées avec fetch() -->
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+</main>
+
+<footer>
+    <p>Application de gestion de bibliothèque - &copy; Martonne 2026 All Right Reserved</p>
+</footer>
+
+<script src="../js/dashboard.js"></script>
 </body>
 </html>

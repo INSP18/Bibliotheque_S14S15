@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque - Emprunts</title>
+    <link rel="stylesheet" href="../styles/style.css">
+</head>
+<body>
+
+<header>
+    <nav aria-label="Navigation principale">
+        <div class="logo-container">
+            <div class="logo-box">
+                <img src="../assets/favicon.ico" alt="logo" width="54" height="54">
+            </div>
+            <span>Bibliothèque</span>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="auteurs.html">Auteurs</a></li>
+            <li><a href="livres.html">Livres</a></li>
+            <li><a href="adherents.html">Adhérents</a></li>
+            <li><a class="active" href="emprunts.html">Emprunts</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section class="page-header">
+        <h1>Emprunts</h1>
+        <p>Gérer les emprunts et les retours de livres</p>
+    </section>
+
+    <section class="content-layout">
+        <article class="table-section">
+            <h2>Liste des emprunts</h2>
+
+            <div class="borrow-actions">
+                <button type="button" class="btn-secondary" id="btn-tous">Tous</button>
+                <button type="button" class="btn-secondary" id="btn-en-cours">En cours</button>
+                <button type="button" class="btn-secondary" id="btn-en-retard">En retard</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Livre</th>
+                            <th>Adhérent</th>
+                            <th>Date d'emprunt</th>
+                            <th>Retour prévu</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tableEmprunts">
+                        <!-- fetch() ajoutera les emprunts ici -->
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+        <aside class="form-section">
+            <h2>Nouvel emprunt</h2>
+
+            <form id="emprunt-form">
+                <div class="form-group">
+                    <label for="emprunt-livre">ID du livre</label>
+                    <input type="number" id="emprunt-livre" name="id_livre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emprunt-adherent">ID de l'adhérent</label>
+                    <input type="number" id="emprunt-adherent" name="id_adherent" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Créer l'emprunt</button>
+                    <button type="reset" class="btn-secondary">Annuler</button>
+                </div>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 28px 0;">
+
+            <h2>Retour d'un livre</h2>
+
+            <form id="retour-form">
+                <div class="form-group">
+                    <label for="retour-emprunt">ID de l'emprunt</label>
+                    <input type="number" id="retour-emprunt" name="id_emprunt" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer le retour</button>
+                </div>
+            </form>
+        </aside>
+    </section>
+</main>
+
+<footer>
+    <p>Application de gestion de bibliothèque - &copy; Martonne 2026 All Right Reserved</p>
+</footer>
+
+<script src="../js/emprunts.js"></script>i
+</body>
+</html>
