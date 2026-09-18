@@ -6,7 +6,7 @@ const tbody = document.querySelector('#tableLivres')
 const formulaire = document.querySelector('#livre-form')
 const idInput = document.querySelector('#livre-id')
 const titreInput = document.querySelector('#livre-titre')
-const statutInput = document.querySelector('#livre-statut')
+const auteurInput = document.querySelector('#livre-auteur')
 const anneeInput = document.querySelector('#livre-annee')
 
 async function chargerLivres() {
@@ -36,8 +36,26 @@ async function chargerLivres() {
     }
 }
 
+async function chargerAuteurs() {
+    try {
+        const response = await fetch(`${API_URL}/api/auteurs`)
+        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+
+        const resultat = await response.json()
+        auteurInput.innerHTML = '<option value="">Sélectionner un auteur</option>'
+        resultat.data.forEach(function(auteur) {
+            auteurInput.innerHTML += `<option value="${auteur.identifiant}">${auteur.auteur}</option>`
+        })
+    } catch (error) {
+        auteurInput.innerHTML = '<option value="">Aucun auteur disponible</option>'
+        console.error('Erreur auteurs :', error)
+    }
+}
+
 async function modifierLivre(id) {
     try {
+        // Garantit que l'option de l'auteur existe avant de la sélectionner.
+        await chargerAuteurs()
         const response = await fetch(`${API_URL}/api/livres/${id}`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
@@ -46,7 +64,7 @@ async function modifierLivre(id) {
 
         idInput.value = livre.id
         titreInput.value = livre.titre
-        statutInput.value = livre.statut
+        auteurInput.value = livre.id_auteur || ''
         anneeInput.value = livre.annee_publication
     } catch (error) {
         console.error('Erreur récupération livre :', error)
@@ -59,7 +77,7 @@ formulaire.addEventListener('submit', async function(event) {
     const id = idInput.value
     const donnees = {
         titre: titreInput.value,
-        statut: statutInput.value,
+        id_auteur: Number(auteurInput.value),
         annee_publication: Number(anneeInput.value)
     }
 
@@ -97,3 +115,4 @@ async function supprimerLivre(id) {
 }
 
 chargerLivres()
+chargerAuteurs()

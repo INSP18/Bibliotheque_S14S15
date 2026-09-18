@@ -3,20 +3,17 @@ import pool from '../config/databaseConfig.js'
 const listeAuteurs = async function(){
     try{
         const result = await pool.query
-        (`select 
-            auteurs.id as identifiant,
+        (`SELECT
+            auteurs.id AS identifiant,
+            auteurs.id AS id,
             auteurs.nom as auteur, 
             auteurs.nationalite as nationalite,
-            livres.titre as livre, 
-            livres.statut as statut,
-            livres.annee_publication as annee
-            
-            from auteurs 
-
-            join 
-                ecrire on auteurs.id =  id_auteur
-            join 
-                livres on id_livre = livres.id
+            STRING_AGG(livres.titre, ', ' ORDER BY livres.titre) AS livre
+            FROM auteurs
+            JOIN ecrire ON auteurs.id = ecrire.id_auteur
+            JOIN livres ON ecrire.id_livre = livres.id
+            GROUP BY auteurs.id, auteurs.nom, auteurs.nationalite
+            ORDER BY auteurs.nom
         `)
         return result.rows
     }

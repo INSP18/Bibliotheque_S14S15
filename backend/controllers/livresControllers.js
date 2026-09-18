@@ -1,4 +1,4 @@
-import { creerLivres, listeLivre, listeLivres, modifierLivre } from '../models/livresModel.js'
+import { creerLivres, listeLivre, listeLivres, modifierLivre, supprimerLivre } from '../models/livresModel.js'
 
 const getAllLivres = async function(request, response) {
     try{
@@ -40,15 +40,15 @@ const getLivresById = async function(request, response){
 
 const createLivre = async function(request, response){
     try{
-        const {titre, annee_publication} = request.body
-        const newLivre = await creerLivres(titre, annee_publication)
-        response.json({
+        const {titre, annee_publication, id_auteur} = request.body
+        const newLivre = await creerLivres(titre, annee_publication, id_auteur)
+        response.status(201).json({
             message: "livre créé avec succès",
             data: newLivre
         })
     }
     catch(error){
-        return response.json({
+        return response.status(400).json({
             message:'Erreur lors de la création de livre'
         })
     }
@@ -57,8 +57,8 @@ const createLivre = async function(request, response){
 const modifyLivre = async function(request, response){
     try{
         const id = await request.params.id
-        const {titre, annee_publication} = request.body
-        const modifiyingLivre= await modifierLivre(id, titre, annee_publication)
+        const {titre, annee_publication, id_auteur} = request.body
+        const modifiyingLivre= await modifierLivre(id, titre, annee_publication, id_auteur)
 
         if(!modifiyingLivre){
             return response.json({
@@ -66,6 +66,10 @@ const modifyLivre = async function(request, response){
                 data: modifiyingLivre
             })
         }
+        response.json({
+            message: 'livre modifié avec succès',
+            data: modifiyingLivre
+        })
     }
     catch(error){
         response.json({
@@ -86,11 +90,13 @@ const deleteLivre = async function(request, response){
         }
         response.json({
             message: 'livre supprimé avec succès',
-            data: deletingAdherent
+            data: deletingLivre
         })
     }
     catch(error){
-
+        response.status(400).json({
+            message: 'Erreur lors de la suppression du livre'
+        })
     }
 }
 
