@@ -11,7 +11,7 @@ const anneeInput = document.querySelector('#livre-annee')
 
 async function chargerLivres() {
     try {
-        const response = await fetch(`${API_URL}/livres`)
+        const response = await fetch(`${API_URL}/api/livres`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -38,7 +38,7 @@ async function chargerLivres() {
 
 async function modifierLivre(id) {
     try {
-        const response = await fetch(`${API_URL}/livres/${id}`)
+        const response = await fetch(`${API_URL}/api/livres/${id}`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -65,7 +65,7 @@ formulaire.addEventListener('submit', async function(event) {
 
     try {
         const response = await fetch(
-            id ? `${API_URL}/livres/${id}` : `${API_URL}/livres`,
+            id ? `${API_URL}/api/livres/${id}` : `${API_URL}/api/livres`,
             {
                 method: id ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -87,7 +87,7 @@ async function supprimerLivre(id) {
     if (!confirm('Voulez-vous supprimer ce livre ?')) return
 
     try {
-        const response = await fetch(`${API_URL}/livres/${id}`, { method: 'DELETE' })
+        const response = await fetch(`${API_URL}/api/livres/${id}`, { method: 'DELETE' })
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         await chargerLivres()

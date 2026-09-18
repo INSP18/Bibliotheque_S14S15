@@ -8,7 +8,7 @@ const contactInput = document.querySelector('#adherent-contact')
 
 async function chargerAdherents() {
     try {
-        const response = await fetch(`${API_URL}/adherents`)
+        const response = await fetch(`${API_URL}/api/adherents`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -34,7 +34,7 @@ async function chargerAdherents() {
 
 async function modifierAdherent(id) {
     try {
-        const response = await fetch(`${API_URL}/adherents/${id}`)
+        const response = await fetch(`${API_URL}/api/adherents/${id}`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -59,7 +59,7 @@ formulaire.addEventListener('submit', async function(event) {
 
     try {
         const response = await fetch(
-            id ? `${API_URL}/adherents/${id}` : `${API_URL}/adherents`,
+            id ? `${API_URL}/api/adherents/${id}` : `${API_URL}/api/adherents`,
             {
                 method: id ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -81,7 +81,7 @@ async function supprimerAdherent(id) {
     if (!confirm('Voulez-vous supprimer cet adhérent ?')) return
 
     try {
-        const response = await fetch(`${API_URL}/adherents/${id}`, { method: 'DELETE' })
+        const response = await fetch(`${API_URL}/api/adherents/${id}`, { method: 'DELETE' })
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         await chargerAdherents()

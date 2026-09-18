@@ -9,7 +9,7 @@ function formaterDate(date) {
 
 async function chargerStatistiques() {
     try {
-        const response = await fetch(`${API_URL}/stats`)
+        const response = await fetch(`${API_URL}/api/stats`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -26,7 +26,7 @@ async function chargerStatistiques() {
 
 async function chargerEmpruntsEnCours() {
     try {
-        const response = await fetch(`${API_URL}/emprunts/en-cours`)
+        const response = await fetch(`${API_URL}/api/emprunts/en-cours`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -51,7 +51,7 @@ async function chargerEmpruntsEnCours() {
 
 async function chargerEmpruntsEnRetard() {
     try {
-        const response = await fetch(`${API_URL}/emprunts/en-retard`)
+        const response = await fetch(`${API_URL}/api/emprunts/en-retard`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()

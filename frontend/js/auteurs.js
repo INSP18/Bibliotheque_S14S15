@@ -9,7 +9,7 @@ const nationaliteInput = document.querySelector('#auteur-nationalite')
 
 async function chargerAuteurs() {
     try {
-        const response = await fetch(`${API_URL}/auteurs`)
+        const response = await fetch(`${API_URL}/api/auteurs`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -36,7 +36,7 @@ async function chargerAuteurs() {
 
 async function modifierAuteur(id) {
     try {
-        const response = await fetch(`${API_URL}/auteurs/${id}`)
+        const response = await fetch(`${API_URL}/api/auteurs/${id}`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
@@ -61,7 +61,7 @@ formulaire.addEventListener('submit', async function(event) {
 
     try {
         const response = await fetch(
-            id ? `${API_URL}/auteurs/${id}` : `${API_URL}/auteurs`,
+            id ? `${API_URL}/api/auteurs/${id}` : `${API_URL}/api/auteurs`,
             {
                 method: id ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -83,7 +83,7 @@ async function supprimerAuteur(id) {
     if (!confirm('Voulez-vous supprimer cet auteur ?')) return
 
     try {
-        const response = await fetch(`${API_URL}/auteurs/${id}`, { method: 'DELETE' })
+        const response = await fetch(`${API_URL}/api/auteurs/${id}`, { method: 'DELETE' })
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         await chargerAuteurs()

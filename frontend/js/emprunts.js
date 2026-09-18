@@ -4,7 +4,7 @@ const API_URL = window.location.hostname === 'localhost'
 
 async function chargerEmprunts(){
     try{
-        const response = await fetch(`${API_URL}/emprunts`)
+        const response = await fetch(`${API_URL}/api/emprunts`)
         const resultat = await response.json()
 
         const tableEmprunts = document.querySelector('#tableEmprunts')
