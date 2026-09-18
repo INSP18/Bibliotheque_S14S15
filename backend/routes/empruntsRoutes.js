@@ -12,7 +12,7 @@ const router = Router()
 router.get('/', getAllEmprunts)
 router.get('/en-cours', getBorrowing)
 router.get('/en-retard', getLateBorrow)
-router.get('/:id', returningEmprunt)
+router.patch('/:id/retour', returningEmprunt)
 router.post('/', createEmprunts)
 
 export default router

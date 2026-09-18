@@ -25,16 +25,20 @@ const createEmprunts = async function(request, response){
         })
     }
     catch(error){
-        response.json({
-            message: "Erreur survenue lors de la création d'emprunt"
+        response.status(400).json({
+            message: error.message || "Erreur survenue lors de la création d'emprunt"
         })
-        console.log(error)
     }
 }
 
 const returningEmprunt = async function(request, response){
     try{
-        const id_emprunt = request.params.id
+        const id_emprunt = Number(request.params.id)
+
+        if (!Number.isInteger(id_emprunt) || id_emprunt <= 0) {
+            return response.status(400).json({ message: 'Identifiant d\'emprunt invalide' })
+        }
+
         const returnEmprunt = await retourEmprunt(id_emprunt)
         response.json({
             message: "Emprunt retourné avec succès !",
@@ -42,7 +46,9 @@ const returningEmprunt = async function(request, response){
         })
     }
     catch(error){
-        response.json({message: "erreur, impossible de consulter l'emprunt sélectionné"})
+        response.status(400).json({
+            message: error.message || "erreur, impossible de consulter l'emprunt sélectionné"
+        })
     }
 }
 

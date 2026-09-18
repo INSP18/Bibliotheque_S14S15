@@ -73,7 +73,7 @@ const retourEmprunt = async function(id_emprunt){
         const EmpruntRetourne = await client.query(requeteRetour, [id_emprunt])
 
         if(EmpruntRetourne.rowCount===0){
-            throw new error("L'emprunt est indisponible ou le livre a déjà été rendu")
+            throw new Error("L'emprunt est indisponible ou le livre a déjà été rendu")
         }
 
         const id_livre = EmpruntRetourne.rows[0].id_livre
@@ -88,7 +88,7 @@ const retourEmprunt = async function(id_emprunt){
         return {message:"Retour enregistré avec succès !"}
     }
     catch(error){
-        client.query('ROLLBACK')
+        await client.query('ROLLBACK')
         throw error
     }
     finally{
@@ -124,12 +124,12 @@ const empruntEnretard = async function(){
     try{
         const requeteEnretard = `
             SELECT 
-                emprunter.id as id_emprunt,
-                livres.titre as titre_livre,
-                adherents.nom as nom_adherent,
-                adherents.contact as contact.adherent,
+                emprunter.id AS id_emprunt,
+                livres.titre AS titre_livre,
+                adherents.nom AS nom_adherent,
+                adherents.contact AS contact_adherent,
                 emprunter.date_emprunt,
-                emprunter.date_retour_prevue,
+                emprunter.date_retour_prevue
             FROM emprunter
             JOIN livres ON emprunter.id_livre = livres.id
             JOIN adherents ON emprunter.id_adherent = adherents.id
