@@ -2,7 +2,7 @@ import { creerteAuteur, listeAuteur, listeAuteurs, modifierAuteur, supprimerAute
 
 const getAllAuteurs = async function(request, response) {
     try{
-        const auteurs = await listeAuteurs()
+        const auteurs = await listeAuteurs(request.query.tous === 'true')
         response.json({
             message: "liste des auteurs récupérée",
             data:auteurs

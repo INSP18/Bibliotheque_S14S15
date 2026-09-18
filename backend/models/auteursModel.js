@@ -1,7 +1,16 @@
 import pool from '../config/databaseConfig.js'
 
-const listeAuteurs = async function(){
+const listeAuteurs = async function(tous = false){
     try{
+        if (tous) {
+            const result = await pool.query(`
+                SELECT id AS identifiant, nom AS auteur, nationalite
+                FROM auteurs
+                ORDER BY nom
+            `)
+            return result.rows
+        }
+
         const result = await pool.query
         (`SELECT
             auteurs.id AS identifiant,

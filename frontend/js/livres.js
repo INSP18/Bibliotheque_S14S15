@@ -38,7 +38,7 @@ async function chargerLivres() {
 
 async function chargerAuteurs() {
     try {
-        const response = await fetch(`${API_URL}/api/auteurs`)
+        const response = await fetch(`${API_URL}/api/auteurs?tous=true`)
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
 
         const resultat = await response.json()
