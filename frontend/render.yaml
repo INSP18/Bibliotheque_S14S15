@@ -1,0 +1,10 @@
+# render.yaml
+services:
+  - type: web
+    name: bibliotheque-frontend
+    # ... (vos autres configurations existantes)
+    staticPublishPath: .
+    headers:
+      - path: /styles/*
+        name: Content-Type
+        value: text/css
