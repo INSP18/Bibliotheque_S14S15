@@ -11,16 +11,16 @@ const listeAuteurs = async function(tous = false){
             return result.rows
         }
 
-        const result = await pool.query
-        (`SELECT
-            auteurs.id AS identifiant,
-            auteurs.id AS id,
-            auteurs.nom as auteur, 
-            auteurs.nationalite as nationalite,
-            STRING_AGG(livres.titre, ', ' ORDER BY livres.titre) AS livre
+        const result = await pool.query(`
+            SELECT
+                auteurs.id AS identifiant,
+                auteurs.id AS id,
+                auteurs.nom AS auteur,
+                auteurs.nationalite AS nationalite,
+                COALESCE(STRING_AGG(livres.titre, ', ' ORDER BY livres.titre), '') AS livre
             FROM auteurs
-            JOIN ecrire ON auteurs.id = ecrire.id_auteur
-            JOIN livres ON ecrire.id_livre = livres.id
+            LEFT JOIN ecrire ON auteurs.id = ecrire.id_auteur
+            LEFT JOIN livres ON ecrire.id_livre = livres.id
             GROUP BY auteurs.id, auteurs.nom, auteurs.nationalite
             ORDER BY auteurs.nom
         `)
@@ -43,8 +43,8 @@ const listeAuteur = async function(id){
 
 const creerteAuteur = async function(nom, nationalite){
     try{
-        const query = 'INSERT INTO auteurs(nom, nationalite) VALUES($1, $2) RETURNING*'
-        const values = [nom,nationalite]
+        const query = 'INSERT INTO auteurs(nom, nationalite) VALUES($1, $2) RETURNING *'
+        const values = [nom, nationalite]
         const result = await pool.query(query, values)
         return result.rows[0]
     }catch(error){

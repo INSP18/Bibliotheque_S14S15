@@ -7,10 +7,17 @@ const idInput = document.querySelector('#auteur-id')
 const nomInput = document.querySelector('#auteur-nom')
 const nationaliteInput = document.querySelector('#auteur-nationalite')
 
+async function verifierReponse(response) {
+    if (!response.ok) {
+        const erreur = await response.json().catch(() => ({}))
+        throw new Error(erreur.message || `Erreur HTTP : ${response.status}`)
+    }
+}
+
 async function chargerAuteurs() {
     try {
         const response = await fetch(`${API_URL}/api/auteurs`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         tbody.innerHTML = ''
@@ -20,7 +27,7 @@ async function chargerAuteurs() {
                 <tr>
                     <td>${auteur.identifiant}</td>
                     <td>${auteur.auteur}</td>
-                    <td>${auteur.livre}</td>
+                    <td>${auteur.livre || '-'}</td>
                     <td>${auteur.nationalite}</td>
                     <td class="action-cell">
                         <button type="button" class="btn-secondary" onclick="modifierAuteur(${auteur.id})">Modifier</button>
@@ -37,7 +44,7 @@ async function chargerAuteurs() {
 async function modifierAuteur(id) {
     try {
         const response = await fetch(`${API_URL}/api/auteurs/${id}`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         const auteur = resultat.data
@@ -47,6 +54,7 @@ async function modifierAuteur(id) {
         nationaliteInput.value = auteur.nationalite
     } catch (error) {
         console.error('Erreur récupération auteur :', error)
+        alert(error.message)
     }
 }
 
@@ -69,13 +77,14 @@ formulaire.addEventListener('submit', async function(event) {
             }
         )
 
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         formulaire.reset()
         idInput.value = ''
         await chargerAuteurs()
     } catch (error) {
         console.error('Erreur enregistrement auteur :', error)
+        alert(error.message)
     }
 })
 
@@ -84,11 +93,12 @@ async function supprimerAuteur(id) {
 
     try {
         const response = await fetch(`${API_URL}/api/auteurs/${id}`, { method: 'DELETE' })
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         await chargerAuteurs()
     } catch (error) {
         console.error('Erreur suppression auteur :', error)
+        alert(error.message)
     }
 }
 

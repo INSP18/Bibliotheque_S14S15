@@ -9,10 +9,17 @@ const titreInput = document.querySelector('#livre-titre')
 const auteurInput = document.querySelector('#livre-auteur')
 const anneeInput = document.querySelector('#livre-annee')
 
+async function verifierReponse(response) {
+    if (!response.ok) {
+        const erreur = await response.json().catch(() => ({}))
+        throw new Error(erreur.message || `Erreur HTTP : ${response.status}`)
+    }
+}
+
 async function chargerLivres() {
     try {
         const response = await fetch(`${API_URL}/api/livres`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         tbody.innerHTML = ''
@@ -39,7 +46,7 @@ async function chargerLivres() {
 async function chargerAuteurs() {
     try {
         const response = await fetch(`${API_URL}/api/auteurs?tous=true`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         auteurInput.innerHTML = '<option value="">Sélectionner un auteur</option>'
@@ -57,7 +64,7 @@ async function modifierLivre(id) {
         // Garantit que l'option de l'auteur existe avant de la sélectionner.
         await chargerAuteurs()
         const response = await fetch(`${API_URL}/api/livres/${id}`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         const livre = resultat.data
@@ -68,6 +75,7 @@ async function modifierLivre(id) {
         anneeInput.value = livre.annee_publication
     } catch (error) {
         console.error('Erreur récupération livre :', error)
+        alert(error.message)
     }
 }
 
@@ -91,13 +99,14 @@ formulaire.addEventListener('submit', async function(event) {
             }
         )
 
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         formulaire.reset()
         idInput.value = ''
         await chargerLivres()
     } catch (error) {
         console.error('Erreur enregistrement livre :', error)
+        alert(error.message)
     }
 })
 
@@ -106,11 +115,12 @@ async function supprimerLivre(id) {
 
     try {
         const response = await fetch(`${API_URL}/api/livres/${id}`, { method: 'DELETE' })
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         await chargerLivres()
     } catch (error) {
         console.error('Erreur suppression livre :', error)
+        alert(error.message)
     }
 }
 

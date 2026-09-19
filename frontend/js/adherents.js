@@ -6,10 +6,17 @@ const idInput = document.querySelector('#adherent-id')
 const nomInput = document.querySelector('#adherent-nom')
 const contactInput = document.querySelector('#adherent-contact')
 
+async function verifierReponse(response) {
+    if (!response.ok) {
+        const erreur = await response.json().catch(() => ({}))
+        throw new Error(erreur.message || `Erreur HTTP : ${response.status}`)
+    }
+}
+
 async function chargerAdherents() {
     try {
         const response = await fetch(`${API_URL}/api/adherents`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         tbody.innerHTML = ''
@@ -19,7 +26,7 @@ async function chargerAdherents() {
                 <tr>
                     <td>${adherent.id}</td>
                     <td>${adherent.nom}</td>
-                    <td>${adherent.contact}</td>
+                    <td>${adherent.contact || '-'}</td>
                     <td class="action-cell">
                         <button type="button" class="btn-secondary" onclick="modifierAdherent(${adherent.id})">Modifier</button>
                         <button type="button" class="btn-danger" onclick="supprimerAdherent(${adherent.id})">Supprimer</button>
@@ -35,16 +42,17 @@ async function chargerAdherents() {
 async function modifierAdherent(id) {
     try {
         const response = await fetch(`${API_URL}/api/adherents/${id}`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         const resultat = await response.json()
         const adherent = resultat.data
 
         idInput.value = adherent.id
         nomInput.value = adherent.nom
-        contactInput.value = adherent.contact
+        contactInput.value = adherent.contact || ''
     } catch (error) {
         console.error('Erreur récupération adhérent :', error)
+        alert(error.message)
     }
 }
 
@@ -67,13 +75,14 @@ formulaire.addEventListener('submit', async function(event) {
             }
         )
 
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         formulaire.reset()
         idInput.value = ''
         await chargerAdherents()
     } catch (error) {
         console.error('Erreur enregistrement adhérent :', error)
+        alert(error.message)
     }
 })
 
@@ -82,11 +91,12 @@ async function supprimerAdherent(id) {
 
     try {
         const response = await fetch(`${API_URL}/api/adherents/${id}`, { method: 'DELETE' })
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+        await verifierReponse(response)
 
         await chargerAdherents()
     } catch (error) {
         console.error('Erreur suppression adhérent :', error)
+        alert(error.message)
     }
 }
 

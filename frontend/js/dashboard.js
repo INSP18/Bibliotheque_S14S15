@@ -18,7 +18,7 @@ async function chargerStatistiques() {
         document.querySelector('#total-livres').textContent = stats.total_livres
         document.querySelector('#total-adherents').textContent = stats.total_adherents
         document.querySelector('#emprunts-en-cours').textContent = stats.total_emprunt_encours
-        document.querySelector('#emprunts-en-retard').textContent = stats.emprunts_en_retard
+        document.querySelector('#emprunts-en-retard').textContent = stats.total_emprunt_enretard
     } catch (error) {
         console.error('Erreur statistiques :', error)
     }

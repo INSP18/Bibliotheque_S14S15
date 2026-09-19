@@ -12,7 +12,8 @@ const listeEmprunts = async function(){
             FROM emprunter
             JOIN livres ON emprunter.id_livre = livres.id
             JOIN adherents ON emprunter.id_adherent = adherents.id
-            WHERE emprunter.date_retour IS NULL;
+            WHERE emprunter.date_retour IS NULL
+            ORDER BY emprunter.date_emprunt DESC
             `)
         return result.rows
     }
@@ -51,7 +52,10 @@ const creerEmprunts = async function (id_livre, id_adherent){
         return nouvelEmprunt
     }
     catch(error){
-        client.query('ROLLBACK')
+        await client.query('ROLLBACK')
+        if(error.code === '23503'){
+            throw new Error("Adhérent introuvable")
+        }
         throw error
     }
     finally{
@@ -109,7 +113,7 @@ const empruntEncours = async function(){
             JOIN livres ON emprunter.id_livre = livres.id
             JOIN adherents ON emprunter.id_adherent = adherents.id
             WHERE emprunter.date_retour IS NULL
-            AND emprunter.date_retour_prevue > CURRENT_DATE
+            AND emprunter.date_retour_prevue >= CURRENT_DATE
             ORDER BY emprunter.date_emprunt DESC
         `
         const resultat = await pool.query(requeteEncours)
@@ -152,4 +156,3 @@ export {
     empruntEncours,
     empruntEnretard
 }
-

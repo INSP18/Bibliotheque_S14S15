@@ -5,33 +5,35 @@ const getAllAuteurs = async function(request, response) {
         const auteurs = await listeAuteurs(request.query.tous === 'true')
         response.json({
             message: "liste des auteurs récupérée",
-            data:auteurs
+            data: auteurs
         })
     }
     catch(error)
     {
-        response.json({
-            message:'Erreur lors de la récupération des auteurs'
+        response.status(500).json({
+            message: 'Erreur lors de la récupération des auteurs'
         })
     }
 }
 
 const getAuteursById = async function(request, response){
     try{
-        const id = await request.params.id
+        const id = request.params.id
         const auteur = await listeAuteur(id)
 
         if(!auteur){
-            return response.json(`L'auteur avec l'id ${id} recherché n'existe pas`)
+            return response.status(404).json({
+                message: `L'auteur avec l'id ${id} recherché n'existe pas`
+            })
         }
         response.json({
-            message: "liste de l'auteur récupérée",
-            data:auteur
+            message: "auteur récupéré",
+            data: auteur
         })
     }
     catch(error){
-        response.json({
-            mesage:'Erreur lors de la récupérartion de données auteurs'
+        response.status(500).json({
+            message: "Erreur lors de la récupération de l'auteur"
         })
     }
 }
@@ -39,48 +41,58 @@ const getAuteursById = async function(request, response){
 const createAuteur = async function(request, response){
     try{
         const {nom, nationalite} = request.body
+
+        if(!nom || !nationalite){
+            return response.status(400).json({
+                message: "Le nom et la nationalité sont obligatoires"
+            })
+        }
+
         const newAuteur = await creerteAuteur(nom, nationalite)
-        response.json(newAuteur)
+        response.status(201).json({
+            message: "auteur créé avec succès",
+            data: newAuteur
+        })
     }
     catch(error){
-        response.json({
-            message:'Erreur de récupération de données'
+        response.status(400).json({
+            message: "Erreur lors de la création de l'auteur"
         })
     }
 }
 
 const modifyAuteur = async function(request, response){
     try{
-        const id = await request.params.id
+        const id = request.params.id
         const {nom, nationalite} = request.body
         const modifiyingAuteur = await modifierAuteur(id, nom, nationalite)
+
+        if(!modifiyingAuteur){
+            return response.status(404).json({
+                message: `L'auteur avec l'id ${id} à modifier, n'existe pas`
+            })
+        }
 
         response.json({
             message: "Auteur modifié avec succès !",
             data: modifiyingAuteur
         })
-
-        if(!modifiyingAuteur){
-            return response.json({
-                message:`L'auteur avec l'id ${id} à modifier, n'existe pas`,
-            })
-        }
     }
     catch(error){
-        response.json({
-            message:"Erreur survenue lors de la modification de l'auteur"
+        response.status(500).json({
+            message: "Erreur survenue lors de la modification de l'auteur"
         })
     }
 }
 
 const deleteAuteur = async function(request, response){
     try{
-        const id = await request.params.id
+        const id = request.params.id
         const deletingAuteur = await supprimerAuteur(id)
 
         if(!deletingAuteur){
-            return response.json({
-                message:`L'auteur avec l'id ${id} à supprimer, n'existe pas`
+            return response.status(404).json({
+                message: `L'auteur avec l'id ${id} à supprimer, n'existe pas`
             })
         }
         response.json({
@@ -89,8 +101,13 @@ const deleteAuteur = async function(request, response){
         })
     }
     catch(error){
-        response.json({
-            message: "Erreur de suppression de données"
+        if(error.code === '23503'){
+            return response.status(409).json({
+                message: "Impossible de supprimer cet auteur : des livres lui sont associés"
+            })
+        }
+        response.status(500).json({
+            message: "Erreur de suppression de l'auteur"
         })
     }
 }

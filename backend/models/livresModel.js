@@ -2,7 +2,7 @@ import pool from '../config/databaseConfig.js'
 
 const listeLivres = async function(){
     try{
-        const result = await pool.query(`SELECT * FROM livres`)
+        const result = await pool.query(`SELECT * FROM livres ORDER BY id`)
         return result.rows
     }
     catch(error){
@@ -86,14 +86,22 @@ const modifierLivre = async function(id, titre, annee_publication, id_auteur){
 }
 
 const supprimerLivre = async function(id){
+    const client = await pool.connect()
     try{
-        const query = 'DELETE FROM livres WHERE id = $1 RETURNING *'
-        const values = [id]
-        const result = await pool.query(query, values)
+        await client.query('BEGIN')
+
+        // Le lien livre-auteur est supprimé d'abord (clé étrangère sur ecrire)
+        await client.query('DELETE FROM ecrire WHERE id_livre = $1', [id])
+        const result = await client.query('DELETE FROM livres WHERE id = $1 RETURNING *', [id])
+
+        await client.query('COMMIT')
         return result.rows[0]
     }
     catch(error){
+        await client.query('ROLLBACK')
         throw error
+    } finally {
+        client.release()
     }
 }
 

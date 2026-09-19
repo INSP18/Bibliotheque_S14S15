@@ -9,7 +9,7 @@ const getAllEmprunts = async function(request, response){
         })
     }
     catch(error){
-        response.json({
+        response.status(500).json({
             message: "Erreur de récupération de liste d'emprunts"
         })
     }
@@ -18,8 +18,15 @@ const getAllEmprunts = async function(request, response){
 const createEmprunts = async function(request, response){
     try{
         const {id_livre, id_adherent} = request.body
+
+        if(!id_livre || !id_adherent){
+            return response.status(400).json({
+                message: "Le livre et l'adhérent sont obligatoires"
+            })
+        }
+
         const empruntCreating = await creerEmprunts(id_livre, id_adherent)
-        response.json({
+        response.status(201).json({
             message: "Emprunt créé avec succès!",
             data: empruntCreating
         })
@@ -62,7 +69,7 @@ const getBorrowing = async function(request, response){
     }
     catch(error)
     {
-        response.json({
+        response.status(500).json({
             message: "Erreur survenue lors de la récupération de la liste des emprunts en cours"
         })
     }
@@ -77,7 +84,7 @@ const getLateBorrow = async function(request, response){
         })
     }
     catch(error){
-        response.json({
+        response.status(500).json({
             message: "Erreur survenue lors de la récupération de la liste des emprunts en retard"
         })
     }
