@@ -1,128 +1,135 @@
-const API_URL = window.location.hostname === 'localhost' 
-? 'http://localhost:3000' 
-: 'https://bibliotheque-s14s15.onrender.com';
+let livres = []
+let auteurs = []
 
-const tbody = document.querySelector('#tableLivres')
-const formulaire = document.querySelector('#livre-form')
-const idInput = document.querySelector('#livre-id')
-const titreInput = document.querySelector('#livre-titre')
-const auteurInput = document.querySelector('#livre-auteur')
-const anneeInput = document.querySelector('#livre-annee')
+const tableLivres = $('#tableLivres')
+const champRecherche = $('#recherche')
+const filtreStatut = $('#filtre-statut')
+const fenetre = $('#modal')
+const formulaireLivre = $('#livre-form')
+const idInput = $('#livre-id')
+const titreInput = $('#livre-titre')
+const auteurSelect = $('#livre-auteur')
+const anneeInput = $('#livre-annee')
+const titreFenetre = $('#modal-title')
 
-async function verifierReponse(response) {
-    if (!response.ok) {
-        const erreur = await response.json().catch(() => ({}))
-        throw new Error(erreur.message || `Erreur HTTP : ${response.status}`)
+function afficherLivres() {
+    const recherche = champRecherche.value.trim().toLowerCase()
+    const statut = filtreStatut.value
+
+    const liste = livres.filter((livre) => {
+        const texte = `${livre.titre} ${livre.auteur || ''}`.toLowerCase()
+        return (!statut || livre.statut === statut) && (!recherche || texte.includes(recherche))
+    })
+
+    if (!liste.length) {
+        tableLivres.innerHTML = ligneVide(6, 'Aucun livre trouvé.')
+        return
+    }
+
+    tableLivres.innerHTML = liste.map((livre) => {
+        const badge = livre.statut === 'disponible'
+            ? '<span class="badge badge-ok">Disponible</span>'
+            : '<span class="badge badge-warn">Emprunté</span>'
+
+        return `
+            <tr>
+                <td>#${esc(livre.id)}</td>
+                <td class="strong">${esc(livre.titre)}</td>
+                <td>${esc(livre.auteur || '—')}</td>
+                <td>${esc(livre.annee_publication)}</td>
+                <td>${badge}</td>
+                <td class="actions">
+                    <button type="button" class="btn btn-ghost btn-sm" data-action="modifier" data-id="${livre.id}">Modifier</button>
+                    <button type="button" class="btn btn-danger-ghost btn-sm" data-action="supprimer" data-id="${livre.id}">Supprimer</button>
+                </td>
+            </tr>
+        `
+    }).join('')
+}
+
+function remplirAuteurs() {
+    auteurSelect.innerHTML = '<option value="">Aucun auteur</option>' + auteurs.map((auteur) =>
+        `<option value="${auteur.identifiant}">${esc(auteur.auteur)}</option>`
+    ).join('')
+}
+
+async function charger() {
+    try {
+        const [listeLivres, listeAuteurs] = await Promise.all([
+            api('/api/livres'),
+            api('/api/auteurs?tous=true')
+        ])
+        livres = listeLivres
+        auteurs = listeAuteurs
+        remplirAuteurs()
+        afficherLivres()
+    } catch (erreur) {
+        tableLivres.innerHTML = ligneVide(6, erreur.message)
+        toast(erreur.message, 'error')
     }
 }
 
-async function chargerLivres() {
-    try {
-        const response = await fetch(`${API_URL}/api/livres`)
-        await verifierReponse(response)
+function ouvrirFenetre(livre = null) {
+    formulaireLivre.reset()
+    idInput.value = livre ? livre.id : ''
+    titreFenetre.textContent = livre ? 'Modifier le livre' : 'Nouveau livre'
 
-        const resultat = await response.json()
-        tbody.innerHTML = ''
-
-        resultat.data.forEach(function(livre) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${livre.id}</td>
-                    <td>${livre.titre}</td>
-                    <td>${livre.statut}</td>
-                    <td>${livre.annee_publication}</td>
-                    <td class="action-cell">
-                        <button type="button" class="btn-secondary" onclick="modifierLivre(${livre.id})">Modifier</button>
-                        <button type="button" class="btn-danger" onclick="supprimerLivre(${livre.id})">Supprimer</button>
-                    </td>
-                </tr>
-            `
-        })
-    } catch (error) {
-        console.error('Erreur livres :', error)
-    }
-}
-
-async function chargerAuteurs() {
-    try {
-        const response = await fetch(`${API_URL}/api/auteurs?tous=true`)
-        await verifierReponse(response)
-
-        const resultat = await response.json()
-        auteurInput.innerHTML = '<option value="">Sélectionner un auteur</option>'
-        resultat.data.forEach(function(auteur) {
-            auteurInput.innerHTML += `<option value="${auteur.identifiant}">${auteur.auteur}</option>`
-        })
-    } catch (error) {
-        auteurInput.innerHTML = '<option value="">Aucun auteur disponible</option>'
-        console.error('Erreur auteurs :', error)
-    }
-}
-
-async function modifierLivre(id) {
-    try {
-        // Garantit que l'option de l'auteur existe avant de la sélectionner.
-        await chargerAuteurs()
-        const response = await fetch(`${API_URL}/api/livres/${id}`)
-        await verifierReponse(response)
-
-        const resultat = await response.json()
-        const livre = resultat.data
-
-        idInput.value = livre.id
+    if (livre) {
         titreInput.value = livre.titre
-        auteurInput.value = livre.id_auteur || ''
+        auteurSelect.value = livre.id_auteur ?? ''
         anneeInput.value = livre.annee_publication
-    } catch (error) {
-        console.error('Erreur récupération livre :', error)
-        alert(error.message)
     }
+    fenetre.showModal()
+    titreInput.focus()
 }
 
-formulaire.addEventListener('submit', async function(event) {
+$('#btn-nouveau').addEventListener('click', () => ouvrirFenetre())
+champRecherche.addEventListener('input', afficherLivres)
+filtreStatut.addEventListener('change', afficherLivres)
+
+tableLivres.addEventListener('click', async (event) => {
+    const bouton = event.target.closest('button[data-action]')
+    if (!bouton) return
+
+    const id = Number(bouton.dataset.id)
+    const livre = livres.find((element) => element.id === id)
+
+    if (bouton.dataset.action === 'modifier') {
+        ouvrirFenetre(livre)
+        return
+    }
+
+    if (!confirm(`Supprimer le livre « ${livre.titre} » ?`)) return
+    try {
+        await api(`/api/livres/${id}`, { method: 'DELETE' })
+        toast('Livre supprimé')
+        await charger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
+    }
+})
+
+formulaireLivre.addEventListener('submit', async (event) => {
     event.preventDefault()
 
     const id = idInput.value
-    const donnees = {
-        titre: titreInput.value,
-        id_auteur: Number(auteurInput.value),
+    const corps = {
+        titre: titreInput.value.trim(),
+        id_auteur: auteurSelect.value ? Number(auteurSelect.value) : null,
         annee_publication: Number(anneeInput.value)
     }
 
     try {
-        const response = await fetch(
-            id ? `${API_URL}/api/livres/${id}` : `${API_URL}/api/livres`,
-            {
-                method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(donnees)
-            }
-        )
-
-        await verifierReponse(response)
-
-        formulaire.reset()
-        idInput.value = ''
-        await chargerLivres()
-    } catch (error) {
-        console.error('Erreur enregistrement livre :', error)
-        alert(error.message)
+        await api(id ? `/api/livres/${id}` : '/api/livres', {
+            method: id ? 'PUT' : 'POST',
+            body: corps
+        })
+        fenetre.close()
+        toast(id ? 'Livre modifié' : 'Livre ajouté')
+        await charger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
     }
 })
 
-async function supprimerLivre(id) {
-    if (!confirm('Voulez-vous supprimer ce livre ?')) return
-
-    try {
-        const response = await fetch(`${API_URL}/api/livres/${id}`, { method: 'DELETE' })
-        await verifierReponse(response)
-
-        await chargerLivres()
-    } catch (error) {
-        console.error('Erreur suppression livre :', error)
-        alert(error.message)
-    }
-}
-
-chargerLivres()
-chargerAuteurs()
+charger()

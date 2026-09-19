@@ -3,107 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bibliothèque - Dashboard</title>
-    <link rel="stylesheet" href="../styles/style.css">
+    <title>Tableau de bord · Bibliothèque</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css"">
 </head>
-<body>
+<body data-page="index">
+    <div class="shell">
+        <aside id="sidebar" class="sidebar"></aside>
+        <div class="backdrop" id="backdrop"></div>
 
-<header>
-    <nav aria-label="Navigation principale">
-        <div class="logo-container">
-            <div class="logo-box">
-                <img src="../assets/favicon.ico" alt="logo" width="54" height="54">
-            </div>
-            <span>Bibliothèque</span>
+        <div class="main">
+            <header class="topbar">
+                <button type="button" class="btn btn-ghost btn-sm" id="burger">Menu</button>
+                <span class="topbar-title">Bibliothèque</span>
+            </header>
+
+            <main class="content">
+                <header class="page-head">
+                    <div>
+                        <h1>Tableau de bord</h1>
+                        <p>Vue d'ensemble de l'activité de la bibliothèque.</p>
+                    </div>
+                    <a class="btn btn-primary" href="emprunts.html">Nouvel emprunt</a>
+                </header>
+
+                <section class="stats" aria-label="Statistiques">
+                    <article class="stat">
+                        <span class="stat-label">Livres</span>
+                        <strong class="stat-value" id="total-livres">–</strong>
+                    </article>
+                    <article class="stat">
+                        <span class="stat-label">Auteurs</span>
+                        <strong class="stat-value" id="total-auteurs">–</strong>
+                    </article>
+                    <article class="stat">
+                        <span class="stat-label">Adhérents</span>
+                        <strong class="stat-value" id="total-adherents">–</strong>
+                    </article>
+                    <article class="stat stat-info">
+                        <span class="stat-label">Emprunts en cours</span>
+                        <strong class="stat-value" id="emprunts-en-cours">–</strong>
+                    </article>
+                    <article class="stat stat-danger">
+                        <span class="stat-label">Emprunts en retard</span>
+                        <strong class="stat-value" id="emprunts-en-retard">–</strong>
+                    </article>
+                </section>
+
+                <section class="card">
+                    <header class="card-head">
+                        <h2>Emprunts en cours</h2>
+                        <a href="emprunts.html">Tout voir</a>
+                    </header>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Livre</th>
+                                    <th>Adhérent</th>
+                                    <th>Emprunté le</th>
+                                    <th>Retour prévu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-emprunts-body">
+                                <tr><td colspan="5" class="empty">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <header class="card-head">
+                        <h2>Emprunts en retard</h2>
+                    </header>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Livre</th>
+                                    <th>Adhérent</th>
+                                    <th>Contact</th>
+                                    <th>Retour prévu</th>
+                                    <th>Retard</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-retards-body">
+                                <tr><td colspan="6" class="empty">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
         </div>
+    </div>
 
-        <ul class="nav-links">
-            <li><a class="active" href="index.html">Dashboard</a></li>
-            <li><a href="auteurs.html">Auteurs</a></li>
-            <li><a href="livres.html">Livres</a></li>
-            <li><a href="adherents.html">Adhérents</a></li>
-            <li><a href="emprunts.html">Emprunts</a></li>
-        </ul>
-    </nav>
-</header>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
 
-<main>
-    <section class="page-header">
-        <h1>Dashboard</h1>
-        <p>Vue générale de la bibliothèque</p>
-    </section>
-
-    <section class="stats-grid" aria-label="Statistiques de la bibliothèque">
-        <article class="stat-card">
-            <h2>Total des livres</h2>
-            <p class="stat-value" id="total-livres">0</p>
-        </article>
-
-        <article class="stat-card">
-            <h2>Total des adhérents</h2>
-            <p class="stat-value" id="total-adherents">0</p>
-        </article>
-
-        <article class="stat-card">
-            <h2>Emprunts en cours</h2>
-            <p class="stat-value" id="emprunts-en-cours">0</p>
-        </article>
-
-        <article class="stat-card">
-            <h2>Emprunts en retard</h2>
-            <p class="stat-value" id="emprunts-en-retard">0</p>
-        </article>
-    </section>
-
-    <section class="dashboard-grid">
-        <article class="panel">
-            <h2>Emprunts en cours</h2>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Livre</th>
-                            <th>Adhérent</th>
-                            <th>Date d'emprunt</th>
-                            <th>Retour prévu</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dashboard-emprunts-body">
-                        <!-- Les données seront ajoutées avec fetch() -->
-                    </tbody>
-                </table>
-            </div>
-        </article>
-
-        <article class="panel">
-            <h2>Emprunts en retard</h2>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Livre</th>
-                            <th>Adhérent</th>
-                            <th>Contact</th>
-                            <th>Retour prévu</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dashboard-retards-body">
-                        <!-- Les données seront ajoutées avec fetch() -->
-                    </tbody>
-                </table>
-            </div>
-        </article>
-    </section>
-</main>
-
-<footer>
-    <p>Application de gestion de bibliothèque - &copy; Martonne 2026 All Right Reserved</p>
-</footer>
-
-<script src="../js/dashboard.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/dashboard.js"></script>
 </body>
 </html>

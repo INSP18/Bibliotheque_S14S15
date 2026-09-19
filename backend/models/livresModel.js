@@ -2,7 +2,20 @@ import pool from '../config/databaseConfig.js'
 
 const listeLivres = async function(){
     try{
-        const result = await pool.query(`SELECT * FROM livres ORDER BY id`)
+        const result = await pool.query(`
+            SELECT
+                livres.id,
+                livres.titre,
+                livres.statut,
+                livres.annee_publication,
+                STRING_AGG(auteurs.nom, ', ' ORDER BY auteurs.nom) AS auteur,
+                MIN(ecrire.id_auteur) AS id_auteur
+            FROM livres
+            LEFT JOIN ecrire ON ecrire.id_livre = livres.id
+            LEFT JOIN auteurs ON auteurs.id = ecrire.id_auteur
+            GROUP BY livres.id
+            ORDER BY livres.id
+        `)
         return result.rows
     }
     catch(error){
@@ -90,7 +103,6 @@ const supprimerLivre = async function(id){
     try{
         await client.query('BEGIN')
 
-        // Le lien livre-auteur est supprimé d'abord (clé étrangère sur ecrire)
         await client.query('DELETE FROM ecrire WHERE id_livre = $1', [id])
         const result = await client.query('DELETE FROM livres WHERE id = $1 RETURNING *', [id])
 

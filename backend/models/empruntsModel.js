@@ -3,18 +3,23 @@ import pool from '../config/databaseConfig.js'
 const listeEmprunts = async function(){
     try{
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 emprunter.id AS id_emprunt,
-                livres.titre AS livre_titre,
-                adherents.nom AS adherent_nom,
+                livres.titre AS titre_livre,
+                adherents.nom AS nom_adherent,
                 emprunter.date_emprunt,
-                emprunter.date_retour_prevue
+                emprunter.date_retour_prevue,
+                emprunter.date_retour,
+                CASE
+                    WHEN emprunter.date_retour IS NOT NULL THEN 'rendu'
+                    WHEN emprunter.date_retour_prevue < CURRENT_DATE THEN 'en_retard'
+                    ELSE 'en_cours'
+                END AS statut
             FROM emprunter
             JOIN livres ON emprunter.id_livre = livres.id
             JOIN adherents ON emprunter.id_adherent = adherents.id
-            WHERE emprunter.date_retour IS NULL
-            ORDER BY emprunter.date_emprunt DESC
-            `)
+            ORDER BY emprunter.date_emprunt DESC, emprunter.id DESC
+        `)
         return result.rows
     }
     catch (error){
@@ -30,7 +35,7 @@ const creerEmprunts = async function (id_livre, id_adherent){
         const livre = await client.query(`
             SELECT * FROM livres WHERE id = $1 AND statut = 'disponible' FOR UPDATE`, [id_livre])
         if(livre.rowCount===0){
-            throw new Error ("livre non disponible")
+            throw new Error ("Ce livre n'est pas disponible")
         }
 
         const requeteEmprunt =`
@@ -41,12 +46,7 @@ const creerEmprunts = async function (id_livre, id_adherent){
         const result = await client.query(requeteEmprunt, [id_livre, id_adherent])
         const nouvelEmprunt = result.rows[0]
 
-        const requeteMisAjour =`
-            UPDATE livres
-            SET statut = 'emprunte' 
-            WHERE id=$1`
-
-        await client.query(requeteMisAjour, [id_livre])
+        await client.query(`UPDATE livres SET statut = 'emprunte' WHERE id = $1`, [id_livre])
 
         await client.query('COMMIT')
         return nouvelEmprunt
@@ -77,16 +77,11 @@ const retourEmprunt = async function(id_emprunt){
         const EmpruntRetourne = await client.query(requeteRetour, [id_emprunt])
 
         if(EmpruntRetourne.rowCount===0){
-            throw new Error("L'emprunt est indisponible ou le livre a déjà été rendu")
+            throw new Error("L'emprunt est introuvable ou le livre a déjà été rendu")
         }
 
         const id_livre = EmpruntRetourne.rows[0].id_livre
-        const requeteDispoLivre = `
-            UPDATE livres
-            SET statut = 'disponible'
-            WHERE id = $1
-        `
-        await client.query(requeteDispoLivre, [id_livre])
+        await client.query(`UPDATE livres SET statut = 'disponible' WHERE id = $1`, [id_livre])
 
         await client.query('COMMIT')
         return {message:"Retour enregistré avec succès !"}
@@ -104,9 +99,9 @@ const empruntEncours = async function(){
     try{
         const requeteEncours = `
             SELECT 
-                emprunter.id as id_emprunt,
-                livres.titre as titre_livre,
-                adherents.nom as nom_adherent,
+                emprunter.id AS id_emprunt,
+                livres.titre AS titre_livre,
+                adherents.nom AS nom_adherent,
                 emprunter.date_emprunt,
                 emprunter.date_retour_prevue
             FROM emprunter

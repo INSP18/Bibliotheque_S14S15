@@ -1,14 +1,17 @@
 import dotenv from 'dotenv'
-import { Pool } from 'pg'
+import pg from 'pg'
 
 dotenv.config()
+
+const { Pool, types } = pg
+types.setTypeParser(1082, (valeur) => valeur)
 
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port : process.env.DB_PORT || 5432
+    port: process.env.DB_PORT || 5432
 })
 
 export default pool

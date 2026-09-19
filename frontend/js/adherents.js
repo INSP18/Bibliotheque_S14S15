@@ -1,103 +1,107 @@
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000': 'https://bibliotheque-s14s15.onrender.com';
+let adherents = []
 
-const tbody = document.querySelector('#tableAdherents')
-const formulaire = document.querySelector('#adherent-form')
-const idInput = document.querySelector('#adherent-id')
-const nomInput = document.querySelector('#adherent-nom')
-const contactInput = document.querySelector('#adherent-contact')
+const tableAdherents = $('#tableAdherents')
+const champRecherche = $('#recherche')
+const fenetre = $('#modal')
+const formulaireAdherent = $('#adherent-form')
+const idInput = $('#adherent-id')
+const nomInput = $('#adherent-nom')
+const contactInput = $('#adherent-contact')
+const titreFenetre = $('#modal-title')
 
-async function verifierReponse(response) {
-    if (!response.ok) {
-        const erreur = await response.json().catch(() => ({}))
-        throw new Error(erreur.message || `Erreur HTTP : ${response.status}`)
+function afficherAdherents() {
+    const recherche = champRecherche.value.trim().toLowerCase()
+
+    const liste = adherents.filter((adherent) =>
+        !recherche || `${adherent.nom} ${adherent.contact || ''}`.toLowerCase().includes(recherche)
+    )
+
+    if (!liste.length) {
+        tableAdherents.innerHTML = ligneVide(4, 'Aucun adhérent trouvé.')
+        return
+    }
+
+    tableAdherents.innerHTML = liste.map((adherent) => `
+        <tr>
+            <td>#${esc(adherent.id)}</td>
+            <td class="strong">${esc(adherent.nom)}</td>
+            <td>${esc(adherent.contact || '—')}</td>
+            <td class="actions">
+                <button type="button" class="btn btn-ghost btn-sm" data-action="modifier" data-id="${adherent.id}">Modifier</button>
+                <button type="button" class="btn btn-danger-ghost btn-sm" data-action="supprimer" data-id="${adherent.id}">Supprimer</button>
+            </td>
+        </tr>
+    `).join('')
+}
+
+async function charger() {
+    try {
+        adherents = await api('/api/adherents')
+        afficherAdherents()
+    } catch (erreur) {
+        tableAdherents.innerHTML = ligneVide(4, erreur.message)
+        toast(erreur.message, 'error')
     }
 }
 
-async function chargerAdherents() {
-    try {
-        const response = await fetch(`${API_URL}/api/adherents`)
-        await verifierReponse(response)
+function ouvrirFenetre(adherent = null) {
+    formulaireAdherent.reset()
+    idInput.value = adherent ? adherent.id : ''
+    titreFenetre.textContent = adherent ? "Modifier l'adhérent" : 'Nouvel adhérent'
 
-        const resultat = await response.json()
-        tbody.innerHTML = ''
-
-        resultat.data.forEach(function(adherent) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${adherent.id}</td>
-                    <td>${adherent.nom}</td>
-                    <td>${adherent.contact || '-'}</td>
-                    <td class="action-cell">
-                        <button type="button" class="btn-secondary" onclick="modifierAdherent(${adherent.id})">Modifier</button>
-                        <button type="button" class="btn-danger" onclick="supprimerAdherent(${adherent.id})">Supprimer</button>
-                    </td>
-                </tr>
-            `
-        })
-    } catch (error) {
-        console.error('Erreur adhérents :', error)
-    }
-}
-
-async function modifierAdherent(id) {
-    try {
-        const response = await fetch(`${API_URL}/api/adherents/${id}`)
-        await verifierReponse(response)
-
-        const resultat = await response.json()
-        const adherent = resultat.data
-
-        idInput.value = adherent.id
+    if (adherent) {
         nomInput.value = adherent.nom
         contactInput.value = adherent.contact || ''
-    } catch (error) {
-        console.error('Erreur récupération adhérent :', error)
-        alert(error.message)
     }
+    fenetre.showModal()
+    nomInput.focus()
 }
 
-formulaire.addEventListener('submit', async function(event) {
-    event.preventDefault()
+$('#btn-nouveau').addEventListener('click', () => ouvrirFenetre())
+champRecherche.addEventListener('input', afficherAdherents)
 
-    const id = idInput.value
-    const donnees = {
-        nom: nomInput.value,
-        contact: contactInput.value
+tableAdherents.addEventListener('click', async (event) => {
+    const bouton = event.target.closest('button[data-action]')
+    if (!bouton) return
+
+    const id = Number(bouton.dataset.id)
+    const adherent = adherents.find((element) => element.id === id)
+
+    if (bouton.dataset.action === 'modifier') {
+        ouvrirFenetre(adherent)
+        return
     }
 
+    if (!confirm(`Supprimer l'adhérent « ${adherent.nom} » ?`)) return
     try {
-        const response = await fetch(
-            id ? `${API_URL}/api/adherents/${id}` : `${API_URL}/api/adherents`,
-            {
-                method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(donnees)
-            }
-        )
-
-        await verifierReponse(response)
-
-        formulaire.reset()
-        idInput.value = ''
-        await chargerAdherents()
-    } catch (error) {
-        console.error('Erreur enregistrement adhérent :', error)
-        alert(error.message)
+        await api(`/api/adherents/${id}`, { method: 'DELETE' })
+        toast('Adhérent supprimé')
+        await charger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
     }
 })
 
-async function supprimerAdherent(id) {
-    if (!confirm('Voulez-vous supprimer cet adhérent ?')) return
+formulaireAdherent.addEventListener('submit', async (event) => {
+    event.preventDefault()
+
+    const id = idInput.value
+    const corps = {
+        nom: nomInput.value.trim(),
+        contact: contactInput.value.trim() || null
+    }
 
     try {
-        const response = await fetch(`${API_URL}/api/adherents/${id}`, { method: 'DELETE' })
-        await verifierReponse(response)
-
-        await chargerAdherents()
-    } catch (error) {
-        console.error('Erreur suppression adhérent :', error)
-        alert(error.message)
+        await api(id ? `/api/adherents/${id}` : '/api/adherents', {
+            method: id ? 'PUT' : 'POST',
+            body: corps
+        })
+        fenetre.close()
+        toast(id ? 'Adhérent modifié' : 'Adhérent ajouté')
+        await charger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
     }
-}
+})
 
-chargerAdherents()
+charger()

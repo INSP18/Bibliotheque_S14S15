@@ -1,105 +1,108 @@
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' 
-: 'https://bibliotheque-s14s15.onrender.com';
+let auteurs = []
 
-const tbody = document.querySelector('#tableAuteurs')
-const formulaire = document.querySelector('#auteur-form')
-const idInput = document.querySelector('#auteur-id')
-const nomInput = document.querySelector('#auteur-nom')
-const nationaliteInput = document.querySelector('#auteur-nationalite')
+const tableAuteurs = $('#tableAuteurs')
+const champRecherche = $('#recherche')
+const fenetre = $('#modal')
+const formulaireAuteur = $('#auteur-form')
+const idInput = $('#auteur-id')
+const nomInput = $('#auteur-nom')
+const nationaliteInput = $('#auteur-nationalite')
+const titreFenetre = $('#modal-title')
 
-async function verifierReponse(response) {
-    if (!response.ok) {
-        const erreur = await response.json().catch(() => ({}))
-        throw new Error(erreur.message || `Erreur HTTP : ${response.status}`)
+function afficherAuteurs() {
+    const recherche = champRecherche.value.trim().toLowerCase()
+
+    const liste = auteurs.filter((auteur) =>
+        !recherche || `${auteur.auteur} ${auteur.nationalite}`.toLowerCase().includes(recherche)
+    )
+
+    if (!liste.length) {
+        tableAuteurs.innerHTML = ligneVide(5, 'Aucun auteur trouvé.')
+        return
+    }
+
+    tableAuteurs.innerHTML = liste.map((auteur) => `
+        <tr>
+            <td>#${esc(auteur.id)}</td>
+            <td class="strong">${esc(auteur.auteur)}</td>
+            <td>${esc(auteur.nationalite)}</td>
+            <td>${esc(auteur.livre || '—')}</td>
+            <td class="actions">
+                <button type="button" class="btn btn-ghost btn-sm" data-action="modifier" data-id="${auteur.id}">Modifier</button>
+                <button type="button" class="btn btn-danger-ghost btn-sm" data-action="supprimer" data-id="${auteur.id}">Supprimer</button>
+            </td>
+        </tr>
+    `).join('')
+}
+
+async function charger() {
+    try {
+        auteurs = await api('/api/auteurs')
+        afficherAuteurs()
+    } catch (erreur) {
+        tableAuteurs.innerHTML = ligneVide(5, erreur.message)
+        toast(erreur.message, 'error')
     }
 }
 
-async function chargerAuteurs() {
-    try {
-        const response = await fetch(`${API_URL}/api/auteurs`)
-        await verifierReponse(response)
+function ouvrirFenetre(auteur = null) {
+    formulaireAuteur.reset()
+    idInput.value = auteur ? auteur.id : ''
+    titreFenetre.textContent = auteur ? "Modifier l'auteur" : 'Nouvel auteur'
 
-        const resultat = await response.json()
-        tbody.innerHTML = ''
-
-        resultat.data.forEach(function(auteur) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${auteur.identifiant}</td>
-                    <td>${auteur.auteur}</td>
-                    <td>${auteur.livre || '-'}</td>
-                    <td>${auteur.nationalite}</td>
-                    <td class="action-cell">
-                        <button type="button" class="btn-secondary" onclick="modifierAuteur(${auteur.id})">Modifier</button>
-                        <button type="button" class="btn-danger" onclick="supprimerAuteur(${auteur.id})">Supprimer</button>
-                    </td>
-                </tr>
-            `
-        })
-    } catch (error) {
-        console.error('Erreur auteurs :', error)
-    }
-}
-
-async function modifierAuteur(id) {
-    try {
-        const response = await fetch(`${API_URL}/api/auteurs/${id}`)
-        await verifierReponse(response)
-
-        const resultat = await response.json()
-        const auteur = resultat.data
-
-        idInput.value = auteur.id
-        nomInput.value = auteur.nom
+    if (auteur) {
+        nomInput.value = auteur.auteur
         nationaliteInput.value = auteur.nationalite
-    } catch (error) {
-        console.error('Erreur récupération auteur :', error)
-        alert(error.message)
     }
+    fenetre.showModal()
+    nomInput.focus()
 }
 
-formulaire.addEventListener('submit', async function(event) {
-    event.preventDefault()
+$('#btn-nouveau').addEventListener('click', () => ouvrirFenetre())
+champRecherche.addEventListener('input', afficherAuteurs)
 
-    const id = idInput.value
-    const donnees = {
-        nom: nomInput.value,
-        nationalite: nationaliteInput.value
+tableAuteurs.addEventListener('click', async (event) => {
+    const bouton = event.target.closest('button[data-action]')
+    if (!bouton) return
+
+    const id = Number(bouton.dataset.id)
+    const auteur = auteurs.find((element) => element.id === id)
+
+    if (bouton.dataset.action === 'modifier') {
+        ouvrirFenetre(auteur)
+        return
     }
 
+    if (!confirm(`Supprimer l'auteur « ${auteur.auteur} » ?`)) return
     try {
-        const response = await fetch(
-            id ? `${API_URL}/api/auteurs/${id}` : `${API_URL}/api/auteurs`,
-            {
-                method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(donnees)
-            }
-        )
-
-        await verifierReponse(response)
-
-        formulaire.reset()
-        idInput.value = ''
-        await chargerAuteurs()
-    } catch (error) {
-        console.error('Erreur enregistrement auteur :', error)
-        alert(error.message)
+        await api(`/api/auteurs/${id}`, { method: 'DELETE' })
+        toast('Auteur supprimé')
+        await charger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
     }
 })
 
-async function supprimerAuteur(id) {
-    if (!confirm('Voulez-vous supprimer cet auteur ?')) return
+formulaireAuteur.addEventListener('submit', async (event) => {
+    event.preventDefault()
+
+    const id = idInput.value
+    const corps = {
+        nom: nomInput.value.trim(),
+        nationalite: nationaliteInput.value.trim()
+    }
 
     try {
-        const response = await fetch(`${API_URL}/api/auteurs/${id}`, { method: 'DELETE' })
-        await verifierReponse(response)
-
-        await chargerAuteurs()
-    } catch (error) {
-        console.error('Erreur suppression auteur :', error)
-        alert(error.message)
+        await api(id ? `/api/auteurs/${id}` : '/api/auteurs', {
+            method: id ? 'PUT' : 'POST',
+            body: corps
+        })
+        fenetre.close()
+        toast(id ? 'Auteur modifié' : 'Auteur ajouté')
+        await charger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
     }
-}
+})
 
-chargerAuteurs()
+charger()

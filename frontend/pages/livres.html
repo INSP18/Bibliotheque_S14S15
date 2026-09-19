@@ -3,98 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bibliothèque - Livres</title>
-    <link rel="stylesheet" href="../styles/style.css">
+    <title>Livres · Bibliothèque</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body data-page="livres">
+    <div class="shell">
+        <aside id="sidebar" class="sidebar"></aside>
+        <div class="backdrop" id="backdrop"></div>
 
-<header>
-    <nav aria-label="Navigation principale">
-        <div class="logo-container">
-            <div class="logo-box">
-                <img src="../assets/favicon.ico" alt="logo" width="54" height="54">
-            </div>
-            <span>Bibliothèque</span>
+        <div class="main">
+            <header class="topbar">
+                <button type="button" class="btn btn-ghost btn-sm" id="burger">Menu</button>
+                <span class="topbar-title">Bibliothèque</span>
+            </header>
+
+            <main class="content">
+                <header class="page-head">
+                    <div>
+                        <h1>Livres</h1>
+                        <p>Le catalogue complet de la bibliothèque.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btn-nouveau">Nouveau livre</button>
+                </header>
+
+                <section class="card">
+                    <div class="toolbar">
+                        <input type="search" id="recherche" placeholder="Rechercher un titre ou un auteur" aria-label="Rechercher">
+                        <select id="filtre-statut" aria-label="Filtrer par statut">
+                            <option value="">Tous les statuts</option>
+                            <option value="disponible">Disponibles</option>
+                            <option value="emprunte">Empruntés</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Titre</th>
+                                    <th>Auteur</th>
+                                    <th>Année</th>
+                                    <th>Statut</th>
+                                    <th class="col-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableLivres">
+                                <tr><td colspan="6" class="empty">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
         </div>
+    </div>
 
-        <ul class="nav-links">
-            <li><a href="index.html">Dashboard</a></li>
-            <li><a href="auteurs.html">Auteurs</a></li>
-            <li><a class="active" href="livres.html">Livres</a></li>
-            <li><a href="adherents.html">Adhérents</a></li>
-            <li><a href="emprunts.html">Emprunts</a></li>
-        </ul>
-    </nav>
-</header>
+    <dialog id="modal">
+        <form id="livre-form" class="modal-form">
+            <header class="modal-head">
+                <h2 id="modal-title">Nouveau livre</h2>
+                <button type="button" class="btn btn-ghost btn-sm" data-close>Fermer</button>
+            </header>
 
-<main>
-    <section class="page-header">
-        <h1>Livres</h1>
-        <p>Gérer les livres disponibles dans la bibliothèque</p>
-    </section>
+            <input type="hidden" id="livre-id">
 
-    <section class="content-layout">
-        <article class="table-section">
-            <h2>Liste des livres</h2>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titre</th>
-                            <th>Statut</th>
-                            <th>Année</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tableLivres">
-                        <!-- fetch() ajoutera les livres ici -->
-                    </tbody>
-                </table>
+            <div class="field">
+                <label for="livre-titre">Titre</label>
+                <input type="text" id="livre-titre" maxlength="225" required>
             </div>
-        </article>
+            <div class="field">
+                <label for="livre-auteur">Auteur</label>
+                <select id="livre-auteur">
+                    <option value="">Aucun auteur</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="livre-annee">Année de publication</label>
+                <input type="number" id="livre-annee" min="1" max="2100" required>
+            </div>
 
-        <aside class="form-section">
-            <h2>Ajouter / modifier un livre</h2>
+            <footer class="modal-foot">
+                <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </footer>
+        </form>
+    </dialog>
 
-            <form id="livre-form">
-                <div class="form-group">
-                    <label for="livre-id">ID</label>
-                    <input type="number" id="livre-id" name="id" readonly>
-                </div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
 
-                <div class="form-group">
-                    <label for="livre-titre">Titre</label>
-                    <input type="text" id="livre-titre" name="titre" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="livre-auteur">Auteur</label>
-                    <select id="livre-auteur" name="id_auteur" required>
-                        <option value="">Chargement des auteurs…</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="livre-annee">Année de publication</label>
-                    <input type="number" id="livre-annee" name="annee_publication" required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                    <button type="reset" class="btn-secondary">Annuler</button>
-                </div>
-            </form>
-        </aside>
-    </section>
-</main>
-
-<footer>
-    <p>Application de gestion de bibliothèque - &copy; Martonne 2026 All Right Reserved</p>
-</footer>
-
-<script src="../js/livres.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/livres.js"></script>
 </body>
 </html>

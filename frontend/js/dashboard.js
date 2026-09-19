@@ -1,79 +1,67 @@
-const API_URL = window.location.hostname === 'localhost' 
-? 'http://localhost:3000' 
-: 'https://bibliotheque-s14s15.onrender.com';
-
-function formaterDate(date) {
-    if (!date) return '-'
-    return new Date(date).toLocaleDateString('fr-FR')
-}
-
 async function chargerStatistiques() {
-    try {
-        const response = await fetch(`${API_URL}/api/stats`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+    const stats = await api('/api/stats')
 
-        const resultat = await response.json()
-        const stats = resultat.data
-
-        document.querySelector('#total-livres').textContent = stats.total_livres
-        document.querySelector('#total-adherents').textContent = stats.total_adherents
-        document.querySelector('#emprunts-en-cours').textContent = stats.total_emprunt_encours
-        document.querySelector('#emprunts-en-retard').textContent = stats.total_emprunt_enretard
-    } catch (error) {
-        console.error('Erreur statistiques :', error)
-    }
+    $('#total-livres').textContent = stats.total_livres
+    $('#total-auteurs').textContent = stats.total_auteurs
+    $('#total-adherents').textContent = stats.total_adherents
+    $('#emprunts-en-cours').textContent = stats.total_emprunt_encours
+    $('#emprunts-en-retard').textContent = stats.total_emprunt_enretard
 }
 
 async function chargerEmpruntsEnCours() {
-    try {
-        const response = await fetch(`${API_URL}/api/emprunts/en-cours`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+    const corps = $('#dashboard-emprunts-body')
+    const emprunts = await api('/api/emprunts/en-cours')
 
-        const resultat = await response.json()
-        const tbody = document.querySelector('#dashboard-emprunts-body')
-        tbody.innerHTML = ''
-
-        resultat.data.forEach(function(emprunt) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${emprunt.id_emprunt}</td>
-                    <td>${emprunt.titre_livre}</td>
-                    <td>${emprunt.nom_adherent}</td>
-                    <td>${formaterDate(emprunt.date_emprunt)}</td>
-                    <td>${formaterDate(emprunt.date_retour_prevue)}</td>
-                </tr>
-            `
-        })
-    } catch (error) {
-        console.error('Erreur emprunts en cours :', error)
+    if (!emprunts.length) {
+        corps.innerHTML = ligneVide(5, 'Aucun emprunt en cours.')
+        return
     }
+
+    corps.innerHTML = emprunts.map((emprunt) => `
+        <tr>
+            <td>#${esc(emprunt.id_emprunt)}</td>
+            <td class="strong">${esc(emprunt.titre_livre)}</td>
+            <td>${esc(emprunt.nom_adherent)}</td>
+            <td>${fmtDate(emprunt.date_emprunt)}</td>
+            <td>${fmtDate(emprunt.date_retour_prevue)}</td>
+        </tr>
+    `).join('')
 }
 
 async function chargerEmpruntsEnRetard() {
-    try {
-        const response = await fetch(`${API_URL}/api/emprunts/en-retard`)
-        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`)
+    const corps = $('#dashboard-retards-body')
+    const emprunts = await api('/api/emprunts/en-retard')
 
-        const resultat = await response.json()
-        const tbody = document.querySelector('#dashboard-retards-body')
-        tbody.innerHTML = ''
+    if (!emprunts.length) {
+        corps.innerHTML = ligneVide(6, 'Aucun retard. Tout est en ordre.')
+        return
+    }
 
-        resultat.data.forEach(function(emprunt) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${emprunt.id_emprunt}</td>
-                    <td>${emprunt.titre_livre}</td>
-                    <td>${emprunt.nom_adherent}</td>
-                    <td>${emprunt.contact_adherent || '-'}</td>
-                    <td>${formaterDate(emprunt.date_retour_prevue)}</td>
-                </tr>
-            `
-        })
-    } catch (error) {
-        console.error('Erreur emprunts en retard :', error)
+    corps.innerHTML = emprunts.map((emprunt) => `
+        <tr>
+            <td>#${esc(emprunt.id_emprunt)}</td>
+            <td class="strong">${esc(emprunt.titre_livre)}</td>
+            <td>${esc(emprunt.nom_adherent)}</td>
+            <td>${esc(emprunt.contact_adherent || '—')}</td>
+            <td>${fmtDate(emprunt.date_retour_prevue)}</td>
+            <td><span class="badge badge-danger">${joursRetard(emprunt.date_retour_prevue)} j</span></td>
+        </tr>
+    `).join('')
+}
+
+async function initialiser() {
+    const resultats = await Promise.allSettled([
+        chargerStatistiques(),
+        chargerEmpruntsEnCours(),
+        chargerEmpruntsEnRetard()
+    ])
+
+    const echec = resultats.find((resultat) => resultat.status === 'rejected')
+    if (echec) {
+        toast(echec.reason.message, 'error')
+        $('#dashboard-emprunts-body').innerHTML = ligneVide(5, 'Données indisponibles.')
+        $('#dashboard-retards-body').innerHTML = ligneVide(6, 'Données indisponibles.')
     }
 }
 
-chargerStatistiques()
-chargerEmpruntsEnCours()
-chargerEmpruntsEnRetard()
+initialiser()

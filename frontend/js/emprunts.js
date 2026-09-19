@@ -1,181 +1,136 @@
-const API_URL = window.location.hostname === 'localhost' 
-? 'http://localhost:3000' 
-: 'https://bibliotheque-s14s15.onrender.com';
+let emprunts = []
+let filtreActif = 'tous'
 
-const formulaireEmprunt = document.querySelector('#emprunt-form')
-const livreInput = document.querySelector('#emprunt-livre')
-const adherentInput = document.querySelector('#emprunt-adherent')
-const retourForm = document.querySelector('#retour-form')
-const tableEmprunts = document.querySelector('#tableEmprunts')
-const boutonTous = document.querySelector('#btn-tous')
-const boutonEnCours = document.querySelector('#btn-en-cours')
-const boutonEnRetard = document.querySelector('#btn-en-retard')
+const formulaireEmprunt = $('#emprunt-form')
+const livreSelect = $('#emprunt-livre')
+const adherentSelect = $('#emprunt-adherent')
+const tableEmprunts = $('#tableEmprunts')
 
-function formaterDate(date) {
-    if (!date) return '-'
-    return new Date(date).toLocaleDateString('fr-FR')
+const STATUTS = {
+    en_cours: { texte: 'En cours', classe: 'badge-info' },
+    en_retard: { texte: 'En retard', classe: 'badge-danger' },
+    rendu: { texte: 'Rendu', classe: 'badge-ok' }
 }
 
-async function chargerOptionsEmprunt() {
+async function chargerFormulaire() {
     try {
-        const [reponseLivres, reponseAdherents] = await Promise.all([
-            fetch(`${API_URL}/api/livres`),
-            fetch(`${API_URL}/api/adherents`)
-        ])
-
-        if (!reponseLivres.ok || !reponseAdherents.ok) {
-            throw new Error('Impossible de récupérer les données du formulaire')
-        }
-
         const [livres, adherents] = await Promise.all([
-            reponseLivres.json(),
-            reponseAdherents.json()
+            api('/api/livres'),
+            api('/api/adherents')
         ])
 
-        livreInput.innerHTML = '<option value="">Sélectionner un livre</option>'
-        livres.data
-            .filter(livre => livre.statut === 'disponible')
-            .forEach(livre => {
-                livreInput.innerHTML += `<option value="${livre.id}">${livre.titre} (${livre.annee_publication})</option>`
-            })
+        const disponibles = livres.filter((livre) => livre.statut === 'disponible')
 
-        adherentInput.innerHTML = '<option value="">Sélectionner un adhérent</option>'
-        adherents.data.forEach(adherent => {
-            const contact = adherent.contact ? ` — ${adherent.contact}` : ''
-            adherentInput.innerHTML += `<option value="${adherent.id}">${adherent.nom}${contact}</option>`
-        })
-    } catch (error) {
-        livreInput.innerHTML = '<option value="">Livres indisponibles</option>'
-        adherentInput.innerHTML = '<option value="">Adhérents indisponibles</option>'
-        console.error('Erreur chargement formulaire emprunt :', error)
+        livreSelect.innerHTML = '<option value="">Choisir un livre</option>' + disponibles.map((livre) =>
+            `<option value="${livre.id}">${esc(livre.titre)}${livre.auteur ? ' — ' + esc(livre.auteur) : ''}</option>`
+        ).join('')
+
+        adherentSelect.innerHTML = '<option value="">Choisir un adhérent</option>' + adherents.map((adherent) =>
+            `<option value="${adherent.id}">${esc(adherent.nom)}</option>`
+        ).join('')
+
+        if (!disponibles.length) {
+            livreSelect.innerHTML = '<option value="">Aucun livre disponible</option>'
+        }
+    } catch (erreur) {
+        livreSelect.innerHTML = '<option value="">Livres indisponibles</option>'
+        adherentSelect.innerHTML = '<option value="">Adhérents indisponibles</option>'
+        toast(erreur.message, 'error')
     }
 }
 
-async function chargerEmprunts(filtre = 'tous') {
+function afficherEmprunts() {
+    const liste = emprunts.filter((emprunt) => filtreActif === 'tous' || emprunt.statut === filtreActif)
+
+    if (!liste.length) {
+        tableEmprunts.innerHTML = ligneVide(8, 'Aucun emprunt dans cette catégorie.')
+        return
+    }
+
+    tableEmprunts.innerHTML = liste.map((emprunt) => {
+        const statut = STATUTS[emprunt.statut]
+        const action = emprunt.statut === 'rendu'
+            ? ''
+            : `<button type="button" class="btn btn-ghost btn-sm" data-id="${emprunt.id_emprunt}">Retourner</button>`
+
+        return `
+            <tr>
+                <td>#${esc(emprunt.id_emprunt)}</td>
+                <td class="strong">${esc(emprunt.titre_livre)}</td>
+                <td>${esc(emprunt.nom_adherent)}</td>
+                <td>${fmtDate(emprunt.date_emprunt)}</td>
+                <td>${fmtDate(emprunt.date_retour_prevue)}</td>
+                <td>${fmtDate(emprunt.date_retour)}</td>
+                <td><span class="badge ${statut.classe}">${statut.texte}</span></td>
+                <td class="actions">${action}</td>
+            </tr>
+        `
+    }).join('')
+}
+
+async function chargerEmprunts() {
     try {
-        const filtres = {
-            tous: `${API_URL}/api/emprunts`,
-            'en-cours': `${API_URL}/api/emprunts/en-cours`,
-            'en-retard': `${API_URL}/api/emprunts/en-retard`
-        }
-
-        const response = await fetch(filtres[filtre] || filtres.tous)
-        const resultat = await response.json()
-
-        if (!response.ok) {
-            throw new Error(resultat.message || 'Impossible de charger la liste des emprunts')
-        }
-
-        tableEmprunts.innerHTML = ''
-
-        if (!Array.isArray(resultat.data) || resultat.data.length === 0) {
-            tableEmprunts.innerHTML = '<tr><td colspan="6">Aucun emprunt trouvé.</td></tr>'
-            return
-        }
-
-        resultat.data.forEach(function(emprunt) {
-            const id = emprunt.id_emprunt ?? emprunt.id
-            const livre = emprunt.livre_titre ?? emprunt.titre_livre
-            const adherent = emprunt.adherent_nom ?? emprunt.nom_adherent
-            const dateEmprunt = formaterDate(emprunt.date_emprunt)
-            const dateRetour = formaterDate(emprunt.date_retour_prevue)
-
-            tableEmprunts.innerHTML += `
-                <tr>
-                    <td>${id}</td>
-                    <td>${livre}</td>
-                    <td>${adherent}</td>
-                    <td>${dateEmprunt}</td>
-                    <td>${dateRetour}</td>
-                    <td>
-                        <button type="button" class="btn-secondary btn-retour" data-id="${id}">Retourner</button>
-                    </td>
-                </tr>
-            `
-        })
-    } catch (error) {
-        tableEmprunts.innerHTML = '<tr><td colspan="6">Erreur lors du chargement des emprunts.</td></tr>'
-        console.error('Erreur chargement emprunts :', error)
+        emprunts = await api('/api/emprunts')
+        afficherEmprunts()
+    } catch (erreur) {
+        tableEmprunts.innerHTML = ligneVide(8, erreur.message)
+        toast(erreur.message, 'error')
     }
 }
 
-async function retournerEmprunt(idEmprunt) {
-    try {
-        const response = await fetch(`${API_URL}/api/emprunts/${idEmprunt}/retour`, {
-            method: 'PATCH'
-        })
-
-        const resultat = await response.json()
-        if (!response.ok) throw new Error(resultat.message || 'Impossible d\'enregistrer le retour')
-
-        alert(resultat.message || 'Retour enregistré avec succès !')
-        await Promise.all([chargerEmprunts(), chargerOptionsEmprunt()])
-    } catch (error) {
-        console.error('Erreur retour emprunt :', error)
-        alert(error.message || 'Impossible d\'enregistrer le retour')
-    }
+async function toutRecharger() {
+    await Promise.all([chargerEmprunts(), chargerFormulaire()])
 }
 
-chargerEmprunts()
-chargerOptionsEmprunt()
+/* Onglets de filtre */
+document.querySelector('.tabs').addEventListener('click', (event) => {
+    const onglet = event.target.closest('.tab')
+    if (!onglet) return
 
-if (boutonTous) {
-    boutonTous.addEventListener('click', () => chargerEmprunts('tous'))
-}
-
-if (boutonEnCours) {
-    boutonEnCours.addEventListener('click', () => chargerEmprunts('en-cours'))
-}
-
-if (boutonEnRetard) {
-    boutonEnRetard.addEventListener('click', () => chargerEmprunts('en-retard'))
-}
-
-tableEmprunts.addEventListener('click', async function(event) {
-    const boutonRetour = event.target.closest('.btn-retour')
-    if (!boutonRetour) return
-
-    const idEmprunt = Number(boutonRetour.dataset.id)
-    if (!idEmprunt) return
-
-    await retournerEmprunt(idEmprunt)
+    filtreActif = onglet.dataset.filtre
+    $$('.tab').forEach((element) => element.classList.toggle('active', element === onglet))
+    afficherEmprunts()
 })
 
-formulaireEmprunt.addEventListener('submit', async function(event) {
+/* Retour d'un livre */
+tableEmprunts.addEventListener('click', async (event) => {
+    const bouton = event.target.closest('button[data-id]')
+    if (!bouton) return
+
+    bouton.disabled = true
+    try {
+        await api(`/api/emprunts/${bouton.dataset.id}/retour`, { method: 'PATCH' })
+        toast('Retour enregistré')
+        await toutRecharger()
+    } catch (erreur) {
+        bouton.disabled = false
+        toast(erreur.message, 'error')
+    }
+})
+
+/* Nouvel emprunt */
+formulaireEmprunt.addEventListener('submit', async (event) => {
     event.preventDefault()
 
+    if (!livreSelect.value || !adherentSelect.value) {
+        toast('Choisissez un livre et un adhérent', 'error')
+        return
+    }
+
     try {
-        const response = await fetch(`${API_URL}/api/emprunts`, {
+        await api('/api/emprunts', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id_livre: Number(livreInput.value),
-                id_adherent: Number(adherentInput.value)
-            })
+            body: {
+                id_livre: Number(livreSelect.value),
+                id_adherent: Number(adherentSelect.value)
+            }
         })
-        const resultat = await response.json()
-
-        if (!response.ok) throw new Error(resultat.message)
-
         formulaireEmprunt.reset()
-        await Promise.all([chargerEmprunts(), chargerOptionsEmprunt()])
-    } catch (error) {
-        console.error('Erreur création emprunt :', error)
-        alert(error.message || "Impossible de créer l'emprunt")
+        toast('Emprunt enregistré')
+        await toutRecharger()
+    } catch (erreur) {
+        toast(erreur.message, 'error')
     }
 })
 
-if (retourForm) {
-    retourForm.addEventListener('submit', async function(event) {
-        event.preventDefault()
-
-        const idEmprunt = Number(document.querySelector('#retour-emprunt').value)
-        if (!idEmprunt) {
-            alert('Veuillez saisir un identifiant d\'emprunt valide.')
-            return
-        }
-
-        await retournerEmprunt(idEmprunt)
-        retourForm.reset()
-    })
-}
+toutRecharger()

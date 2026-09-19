@@ -3,91 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bibliothèque - Auteurs</title>
-    <link rel="stylesheet" href="../styles/style.css">
+    <title>Auteurs · Bibliothèque</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body data-page="auteurs">
+    <div class="shell">
+        <aside id="sidebar" class="sidebar"></aside>
+        <div class="backdrop" id="backdrop"></div>
 
-<header>
-    <nav aria-label="Navigation principale">
-        <div class="logo-container">
-            <div class="logo-box">
-                <img src="../assets/favicon.ico" alt="logo" width="54" height="54">
-            </div>
-            <span>Bibliothèque</span>
+        <div class="main">
+            <header class="topbar">
+                <button type="button" class="btn btn-ghost btn-sm" id="burger">Menu</button>
+                <span class="topbar-title">Bibliothèque</span>
+            </header>
+
+            <main class="content">
+                <header class="page-head">
+                    <div>
+                        <h1>Auteurs</h1>
+                        <p>Les auteurs référencés et leurs livres.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btn-nouveau">Nouvel auteur</button>
+                </header>
+
+                <section class="card">
+                    <div class="toolbar">
+                        <input type="search" id="recherche" placeholder="Rechercher un auteur ou une nationalité" aria-label="Rechercher">
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Nom</th>
+                                    <th>Nationalité</th>
+                                    <th>Livres</th>
+                                    <th class="col-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableAuteurs">
+                                <tr><td colspan="5" class="empty">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
         </div>
+    </div>
 
-        <ul class="nav-links">
-            <li><a href="index.html">Dashboard</a></li>
-            <li><a class="active" href="auteurs.html">Auteurs</a></li>
-            <li><a href="livres.html">Livres</a></li>
-            <li><a href="adherents.html">Adhérents</a></li>
-            <li><a href="emprunts.html">Emprunts</a></li>
-        </ul>
-    </nav>
-</header>
+    <dialog id="modal">
+        <form id="auteur-form" class="modal-form">
+            <header class="modal-head">
+                <h2 id="modal-title">Nouvel auteur</h2>
+                <button type="button" class="btn btn-ghost btn-sm" data-close>Fermer</button>
+            </header>
 
-<main>
-    <section class="page-header">
-        <h1>Auteurs</h1>
-        <p>Gérer la liste des auteurs de la bibliothèque</p>
-    </section>
+            <input type="hidden" id="auteur-id">
 
-    <section class="content-layout">
-        <article class="table-section">
-            <h2>Liste des auteurs</h2>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Livre</th>
-                            <th>Nationalité</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tableAuteurs">
-                        <!-- fetch() ajoutera les auteurs ici -->
-                    </tbody>
-                </table>
+            <div class="field">
+                <label for="auteur-nom">Nom</label>
+                <input type="text" id="auteur-nom" maxlength="200" required>
             </div>
-        </article>
+            <div class="field">
+                <label for="auteur-nationalite">Nationalité</label>
+                <input type="text" id="auteur-nationalite" maxlength="100" required>
+            </div>
 
-        <aside class="form-section">
-            <h2>Ajouter / modifier un auteur</h2>
+            <footer class="modal-foot">
+                <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </footer>
+        </form>
+    </dialog>
 
-            <form id="auteur-form">
-                <div class="form-group">
-                    <label for="auteur-id">ID</label>
-                    <input type="number" id="auteur-id" name="id" readonly>
-                </div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
 
-                <div class="form-group">
-                    <label for="auteur-nom">Nom</label>
-                    <input type="text" id="auteur-nom" name="nom" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="auteur-nationalite">Nationalité</label>
-                    <input type="text" id="auteur-nationalite" name="nationalite" required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                    <button type="reset" class="btn-secondary">Annuler</button>
-                </div>
-            </form>
-        </aside>
-    </section>
-</main>
-
-<footer>
-    <p>Application de gestion de bibliothèque - &copy; Martonne 2026 All Right Reserved</p>
-</footer>
-
-<script src="../js/auteurs.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/auteurs.js"></script>
 </body>
 </html>

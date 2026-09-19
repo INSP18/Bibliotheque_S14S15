@@ -3,90 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bibliothèque - Adhérents</title>
-    <link rel="stylesheet" href="../styles/style.css">
+    <title>Adhérents · Bibliothèque</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body data-page="adherents">
+    <div class="shell">
+        <aside id="sidebar" class="sidebar"></aside>
+        <div class="backdrop" id="backdrop"></div>
 
-<header>
-    <nav aria-label="Navigation principale">
-        <div class="logo-container">
-            <div class="logo-box">
-                <img src="../assets/favicon.ico" alt="logo" width="54" height="54">
-            </div>
-            <span>Bibliothèque</span>
+        <div class="main">
+            <header class="topbar">
+                <button type="button" class="btn btn-ghost btn-sm" id="burger">Menu</button>
+                <span class="topbar-title">Bibliothèque</span>
+            </header>
+
+            <main class="content">
+                <header class="page-head">
+                    <div>
+                        <h1>Adhérents</h1>
+                        <p>Les membres inscrits à la bibliothèque.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btn-nouveau">Nouvel adhérent</button>
+                </header>
+
+                <section class="card">
+                    <div class="toolbar">
+                        <input type="search" id="recherche" placeholder="Rechercher un nom ou un contact" aria-label="Rechercher">
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Nom</th>
+                                    <th>Contact</th>
+                                    <th class="col-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableAdherents">
+                                <tr><td colspan="4" class="empty">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
         </div>
+    </div>
 
-        <ul class="nav-links">
-            <li><a href="index.html">Dashboard</a></li>
-            <li><a href="auteurs.html">Auteurs</a></li>
-            <li><a href="livres.html">Livres</a></li>
-            <li><a class="active" href="adherents.html">Adhérents</a></li>
-            <li><a href="emprunts.html">Emprunts</a></li>
-        </ul>
-    </nav>
-</header>
+    <dialog id="modal">
+        <form id="adherent-form" class="modal-form">
+            <header class="modal-head">
+                <h2 id="modal-title">Nouvel adhérent</h2>
+                <button type="button" class="btn btn-ghost btn-sm" data-close>Fermer</button>
+            </header>
 
-<main>
-    <section class="page-header">
-        <h1>Adhérents</h1>
-        <p>Gérer les membres de la bibliothèque</p>
-    </section>
+            <input type="hidden" id="adherent-id">
 
-    <section class="content-layout">
-        <article class="table-section">
-            <h2>Liste des adhérents</h2>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Contact</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tableAdherents">
-                        <!-- fetch() ajoutera les adhérents ici -->
-                    </tbody>
-                </table>
+            <div class="field">
+                <label for="adherent-nom">Nom</label>
+                <input type="text" id="adherent-nom" maxlength="200" required>
             </div>
-        </article>
+            <div class="field">
+                <label for="adherent-contact">Contact (téléphone ou e-mail)</label>
+                <input type="text" id="adherent-contact" maxlength="50">
+            </div>
 
-        <aside class="form-section">
-            <h2>Ajouter / modifier un adhérent</h2>
+            <footer class="modal-foot">
+                <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </footer>
+        </form>
+    </dialog>
 
-            <form id="adherent-form">
-                <div class="form-group">
-                    <label for="adherent-id">ID</label>
-                    <input type="number" id="adherent-id" name="id" readonly>
-                </div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
 
-                <div class="form-group">
-                    <label for="adherent-nom">Nom</label>
-                    <input type="text" id="adherent-nom" name="nom" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="adherent-contact">Contact</label>
-                    <input type="text" id="adherent-contact" name="contact" required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                    <button type="reset" class="btn-secondary">Annuler</button>
-                </div>
-            </form>
-        </aside>
-    </section>
-</main>
-
-<footer>
-    <p>Application de gestion de bibliothèque - &copy; Martonne 2026 All Right Reserved</p>
-</footer>
-
-<script src="../js/adherents.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/adherents.js"></script>
 </body>
 </html>
